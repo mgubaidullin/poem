@@ -57,6 +57,7 @@ public class BpelActivitiesPanel extends TablePanel implements Property.ValueCha
         table.setSortContainerPropertyId("startTime");
         table.setSortAscending(false);
         table.sort();
+        table.setFooterVisible(true);
     }
 
     public void refreshInstanceData() {
@@ -73,6 +74,7 @@ public class BpelActivitiesPanel extends TablePanel implements Property.ValueCha
                 woItem.getItemProperty("lasted").setValue(activity.lasted);
                 woItem.getItemProperty("status").setValue(activity.status);
             }
+            table.setColumnFooter("activityXpath", "activities count = " + activities.size());
         } catch (Exception ex) {
             ex.printStackTrace();
         }
