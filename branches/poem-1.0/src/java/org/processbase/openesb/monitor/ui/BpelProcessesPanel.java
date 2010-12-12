@@ -283,6 +283,7 @@ public class BpelProcessesPanel extends TablePanel implements Property.ValueChan
 //        table.setSortContainerPropertyId("startTime");
 //        table.setSortAscending(false);
 //        table.sort();
+        table.setFooterVisible(true);
     }
 
     public void refreshProcessesData() {
@@ -312,6 +313,7 @@ public class BpelProcessesPanel extends TablePanel implements Property.ValueChan
                 tebb.addButton(getExecBtn("Terminate", "icons/cancel.png", info, POEMConstants.ACTION_TERMINATE));
                 woItem.getItemProperty("actions").setValue(tebb);
             }
+            table.setColumnFooter("bpelId", "processes count = " + table.size());
         } catch (Exception ex) {
             ex.printStackTrace();
         }
