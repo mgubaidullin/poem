@@ -43,13 +43,14 @@ import org.processbase.openesb.monitor.ui.template.TablePanel;
 public class BpelProcessesPanel extends TablePanel implements Property.ValueChangeListener {
 
     private NativeSelect statusSelect = new NativeSelect("Status");
+    private TextField searchID = new TextField("Search ID");
     private TextField rowCount = new TextField("Row count", "10");
     private NativeSelect suSelect = new NativeSelect("Service Unit");
     private NativeSelect piSelect = new NativeSelect("Process ID");
     private CheckBox isPersistenceEnabled = new CheckBox("Persistence");
     private CheckBox isMonitoringEnabled = new CheckBox("Monitoring");
     private CheckBox isMonitoringVariableEnabled = new CheckBox("Variables");
-    private GridLayout infoPanel = new GridLayout(7, 4);
+    private GridLayout infoPanel = new GridLayout(8, 4);
     private NativeSelect clusterSelect = new NativeSelect("Cluster");
     private NativeSelect saSelect = new NativeSelect("Service Assembly");
     private NativeSelect sortColumnSelect = new NativeSelect("Sort Column");
@@ -91,7 +92,7 @@ public class BpelProcessesPanel extends TablePanel implements Property.ValueChan
 //        infoPanel.addComponent(isMonitoringVariableEnabled, 0, 3);
 //        infoPanel.setComponentAlignment(isMonitoringVariableEnabled, Alignment.MIDDLE_LEFT);
 
-        saSelect.setWidth("200px");
+        saSelect.setWidth("150px");
         saSelect.setNullSelectionAllowed(false);
         saSelect.setImmediate(true);
         saSelect.addListener(new Property.ValueChangeListener() {
@@ -121,11 +122,11 @@ public class BpelProcessesPanel extends TablePanel implements Property.ValueChan
         });
         infoPanel.addComponent(suSelect, 4, 0);
 
-        piSelect.setWidth("440px");
+        piSelect.setWidth("400px");
         piSelect.setNullSelectionAllowed(true);
         piSelect.setImmediate(true);
         piSelect.addListener((Property.ValueChangeListener) this);
-        infoPanel.addComponent(piSelect, 2, 1, 4, 1);
+        infoPanel.addComponent(piSelect,5,0,6,0);
 
         sortColumnSelect.setWidth("100px");
         sortColumnSelect.setNullSelectionAllowed(false);
@@ -135,7 +136,7 @@ public class BpelProcessesPanel extends TablePanel implements Property.ValueChan
             sortColumnSelect.addItem(sortColumn);
         }
         sortColumnSelect.setValue(sortColumnSelect.getItemIds().toArray()[0]);
-        infoPanel.addComponent(sortColumnSelect, 5, 0);
+        infoPanel.addComponent(sortColumnSelect, 2, 1);
 
         sortOrderSelect.setWidth("100px");
         sortOrderSelect.setNullSelectionAllowed(false);
@@ -145,7 +146,7 @@ public class BpelProcessesPanel extends TablePanel implements Property.ValueChan
             sortOrderSelect.addItem(sortOrder);
         }
         sortOrderSelect.setValue(SortOrder.DESC);
-        infoPanel.addComponent(sortOrderSelect, 5, 1);
+        infoPanel.addComponent(sortOrderSelect, 4, 1);
 
         statusSelect.addItem(BPStatus.RUNNING);
         statusSelect.addItem(BPStatus.COMPLETED);
@@ -155,13 +156,16 @@ public class BpelProcessesPanel extends TablePanel implements Property.ValueChan
         statusSelect.setNullSelectionAllowed(true);
         statusSelect.setImmediate(true);
         statusSelect.addListener((Property.ValueChangeListener) this);
-        infoPanel.addComponent(statusSelect, 6, 0);
+        infoPanel.addComponent(statusSelect, 5, 1);
 
         rowCount.addValidator(new IntegerValidator("Row count must be a number between 1 and 1000"));
         rowCount.setWidth("100px");
         rowCount.setImmediate(true);
         rowCount.addListener((Property.ValueChangeListener) this);
         infoPanel.addComponent(rowCount, 6, 1);
+
+        searchID.setWidth("200px");
+        infoPanel.addComponent(searchID, 7, 0, 7, 0);
 
         infoPanel.setMargin(false);
         infoPanel.setSpacing(true);
@@ -292,8 +296,8 @@ public class BpelProcessesPanel extends TablePanel implements Property.ValueChan
             BPInstanceQueryResult instances =
                     POEM.getCurrent().bpelManagementService.getBPELInstances(
                     piSelect.getValue() != null ? piSelect.getValue().toString() : null,
-                    (BPStatus) statusSelect.getValue(),
-                    null,
+                    (BPStatus) statusSelect.getValue(), 
+                    (String) ((searchID.getValue() != null && !searchID.getValue().toString().isEmpty()) ? searchID.getValue() : null),
                     new Integer(rowCount.getValue().toString()),
                     (SortColumn) sortColumnSelect.getValue(),
                     (SortOrder) sortOrderSelect.getValue(),
