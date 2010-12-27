@@ -23,6 +23,7 @@ import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
+import org.processbase.openesb.monitor.db.DBManager;
 
 public class POEM extends Application implements TransactionListener {
 
@@ -32,6 +33,7 @@ public class POEM extends Application implements TransactionListener {
     public JBIAdminCommands jbiAdminCommands;
     public BPELManagementService bpelManagementService;
     public IndexedContainer targets = new IndexedContainer();
+    public DBManager dbManager = new DBManager();
     public boolean isClusterSupported = false;
 
 

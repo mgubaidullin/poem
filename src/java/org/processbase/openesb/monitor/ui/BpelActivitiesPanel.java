@@ -2,11 +2,6 @@ package org.processbase.openesb.monitor.ui;
 
 import com.sun.caps.management.api.bpel.BPELManagementService;
 import com.sun.caps.management.api.bpel.BPELManagementService.ActivityStatus;
-import com.sun.caps.management.api.bpel.BPELManagementService.BPInstanceInfo;
-import com.sun.caps.management.api.bpel.BPELManagementService.BPInstanceQueryResult;
-import com.sun.caps.management.api.bpel.BPELManagementService.BPStatus;
-import com.sun.caps.management.api.bpel.BPELManagementService.SortColumn;
-import com.sun.caps.management.api.bpel.BPELManagementService.SortOrder;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -79,6 +74,10 @@ public class BpelActivitiesPanel extends TablePanel implements Property.ValueCha
             ex.printStackTrace();
         }
         refreshBtn.setStyleName("reindeermods");
+    }
+
+    private void prepareBPEL(){
+        POEM.getCurrent().dbManager.getConnection();
     }
 
     @Override
