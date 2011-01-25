@@ -68,15 +68,11 @@ public class POEM extends Application implements TransactionListener {
         
     }
 
-    
-
-  
-
     public void authenticate(String address, String port, String login, String password) throws NamingException, Exception {
 
         JMXServiceURL jmxUrl = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + address + ":" + port + "/jmxrmi");
         Map environment = new HashMap();
-        environment.put(JMXConnector.CREDENTIALS, new String[]{"admin", "adminadmin"});
+        environment.put(JMXConnector.CREDENTIALS, new String[]{login, password});
         jmxConnector = JMXConnectorFactory.connect(jmxUrl, environment);
         MBeanServerConnection jmxMBeanServerCon = jmxConnector.getMBeanServerConnection();
 
