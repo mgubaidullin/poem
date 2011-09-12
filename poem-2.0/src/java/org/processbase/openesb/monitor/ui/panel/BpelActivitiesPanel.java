@@ -123,9 +123,12 @@ public class BpelActivitiesPanel extends TreeTablePanel implements Property.Valu
         try {
             // prepare document
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-//            factory.setNamespaceAware(true); // never forget this!
+//            factory.setNamespaceAware(true); 
             DocumentBuilder builder = factory.newDocumentBuilder();
             InputStream is = POEM.getCurrent().dbManager.getBPEL(suName, bpelName.split("}")[1], target);
+            if (is == null) {
+                is = POEM.getCurrent().dbManager.findBPEL(bpelName.split("}")[1], target);
+            }
             bpelDocument = builder.parse(is);
         } catch (Exception ex) {
             ex.printStackTrace();

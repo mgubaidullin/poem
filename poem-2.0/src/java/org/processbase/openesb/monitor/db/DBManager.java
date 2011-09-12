@@ -53,7 +53,7 @@ public class DBManager {
     }
 
     public InputStream getBPEL(String suName, String bpelName, String clusterName) {
-//        System.out.println("DEBUG GETBPEL " + suName + " " +bpelName);
+//        System.out.println("DEBUG GETBPEL " + suName + " " +bpelName + " " + clusterName);
         InputStream result = null;
         Connection connection = null;
         PreparedStatement ps = null;
@@ -80,8 +80,8 @@ public class DBManager {
                     zipFile = new ZipFile(file);
                     for (Enumeration<ZipEntry> e = (Enumeration<ZipEntry>) zipFile.entries(); e.hasMoreElements();) {
                         zipEntry = e.nextElement();
+//                        System.out.println(zipEntry.getName());
                         if (zipEntry.getName().equals("/sun-bpel-engine/" + bpelName + ".bpel")) {
-//                            System.out.println(zipEntry.getName());
                             result = zipFile.getInputStream(zipEntry);
                         }
                     }
@@ -108,75 +108,61 @@ public class DBManager {
         }
         return result;
     }
-//    protected List<BPELData> getBPELForSU(String suName) {
-//         List<BPELData> bpelList = new ArrayList<BPELData>();
-//         try {
-//             ResultSet rs = dbConnection.createStatement().executeQuery("SELECT SUZIPARCHIVE FROM ServiceUnit WHERE SUNAME = '" + suName + "'");
-//             while (rs.next()) {
-//                 Blob suArchiveBlob = (Blob) rs.getBlob("SUZIPARCHIVE");
-//                 File file = null;
-//                 FileOutputStream fos = null;
-//                 int length = 0;
-//                 ZipFile zipFile = null;
-//                 ZipEntry zipEntry = null;
-//                 String zipEntryName = null;
-//                 BufferedReader br = null;
-//                 InputStreamReader isr = null;
-//                 InputStream is = null;
-//                 String line = null;
-//                 StringBuffer bpelSB = new StringBuffer();
-//                 String bpelName = null;
-//                 int idx = 0;
-//
-//                 try {
-//                     file = File.createTempFile("suArchive", ".zip");
-// //                        System.out.println("*** APH-I1 : Temp File " + file.getAbsolutePath());
-// //                        System.out.println("*** APH-I1 : Temp File " + file.getName());
-//                     file.deleteOnExit();
-//                     length = (int) suArchiveBlob.length();
-//                     fos = new FileOutputStream(file);
-//                     fos.write(suArchiveBlob.getBytes(1L, length));
-//                     zipFile = new ZipFile(file);
-// //                        System.out.println("*** APH-I1 : Zip Entries " + zipFile.size());
-//                     for (Enumeration<ZipEntry> e = (Enumeration<ZipEntry>) zipFile.entries(); e.hasMoreElements();) {
-//                         zipEntry = e.nextElement();
-//                         zipEntryName = zipEntry.getName();
-// //                            System.out.println("*** APH-I2 : Name = " + zipEntryName);
-//                         if (zipEntryName.endsWith(".bpel")) {
-//                             bpelSB = new StringBuffer();
-//                             is = zipFile.getInputStream(zipEntry);
-//                             isr = new InputStreamReader(is);
-//                             br = new BufferedReader(isr);
-//                             while ((line = br.readLine()) != null) {
-// //                                    System.out.println(line);
-//                                 bpelSB.append(line + "\n");
-//                             }
-//                             idx = zipEntryName.lastIndexOf("/");
-//                             bpelName = zipEntryName.substring(idx + 1);
-// //                                System.out.println("*** APH-I3 : Zip Entry Name " + zipEntryName + " BPEL Name " + bpelName);
-// //                                System.out.println("*** APH-I3 : BPEL String "+bpelSB.toString());
-//                             bpelList.add(new BPELData(bpelName, bpelSB));
-//                         }
-//                     }
-//                 } catch (Exception ex) {
-//                     Logger.getLogger(BpelSvgRetriever.class.getName()).log(Level.SEVERE, null, ex);
-//                 } finally {
-//                     try {
-//                         fos.close();
-//                     } catch (Exception e) {
-//                     }
-//                     try {
-//                         is.close();
-//                     } catch (Exception e) {
-//                     }
-//                     file.delete();
-//                 }
-//             }
-//         } catch (Exception ex) {
-//             Logger.getLogger(BpelSvgRetriever.class.getName()).log(Level.SEVERE, null, ex);
-//         }
-//
-//
-//         return bpelList;
-//     }
+
+    public InputStream findBPEL(String bpelName, String clusterName) {
+//        System.out.println("DEBUG FINDBPEL " + " " +bpelName + " " + clusterName);
+        InputStream result = null;
+        Connection connection = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        File file = null;
+        try {
+            connection = getConnection(clusterName);
+            ps = connection.prepareStatement("SELECT SUZIPARCHIVE FROM SERVICEUNIT");
+            rs = ps.executeQuery();
+            if (rs != null) {
+                while (rs.next()) {
+                    Blob suArchiveBlob = rs.getBlob(1);
+                    FileOutputStream fos = null;
+                    int length = 0;
+                    ZipFile zipFile = null;
+                    ZipEntry zipEntry = null;
+
+                    file = File.createTempFile("suArchive", ".zip");
+                    file.deleteOnExit();
+                    length = (int) suArchiveBlob.length();
+                    fos = new FileOutputStream(file);
+                    fos.write(suArchiveBlob.getBytes(1L, length));
+                    zipFile = new ZipFile(file);
+                    for (Enumeration<ZipEntry> e = (Enumeration<ZipEntry>) zipFile.entries(); e.hasMoreElements();) {
+                        zipEntry = e.nextElement();
+//                        System.out.println(zipEntry.getName());
+                        if (zipEntry.getName().equals("/sun-bpel-engine/" + bpelName + ".bpel")) {
+                            result = zipFile.getInputStream(zipEntry);
+                            break;
+                        }
+                    }
+                }
+                rs.close();
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            try {
+                if (ps != null) {
+                    ps.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+                if (file != null) {
+                    file.delete();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return result;
+    }
 }

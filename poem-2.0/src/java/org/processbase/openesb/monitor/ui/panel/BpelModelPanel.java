@@ -164,6 +164,9 @@ public class BpelModelPanel extends TreeTablePanel implements Property.ValueChan
 //            factory.setNamespaceAware(true); // never forget this!
             DocumentBuilder builder = factory.newDocumentBuilder();
             InputStream is = POEM.getCurrent().dbManager.getBPEL(suName, bpelName.split("}")[1], target);
+            if (is == null) {
+                is = POEM.getCurrent().dbManager.findBPEL(bpelName.split("}")[1], target);
+            }
             bpelDocument = builder.parse(is);
         } catch (Exception ex) {
             ex.printStackTrace();
