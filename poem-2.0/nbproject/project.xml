@@ -53,12 +53,6 @@
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.gwt-dev.jar}</file>
-                </library>
-                <library>
-                    <file>${file.reference.gwt-user.jar}</file>
-                </library>
-                <library>
                     <file>${file.reference.ojdbc6_11.2.0.2.jar}</file>
                 </library>
                 <library>
