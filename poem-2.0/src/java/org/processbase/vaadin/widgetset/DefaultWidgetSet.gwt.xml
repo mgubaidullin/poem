@@ -19,11 +19,11 @@
 
     <inherits name="com.vaadin.terminal.gwt.DefaultWidgetSet" />
 
-    <inherits name="com.github.wolfie.refresher.RefresherApplicationWidgetset" />
+    
 
-    <inherits name="com.vaadin.addon.treetable.TreetableWidgetset" />
+    
 
-    <inherits name="com.invient.vaadin.charts.widgetset.InvientChartsWidgetset" />
+    
 
     <inherits name="org.vaadin.codemirror.CodemirrorWidgetset" />
 </module>
