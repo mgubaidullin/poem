@@ -4,61 +4,50 @@
  */
 package org.processbase.openesb.monitor.db;
 
-import com.sun.jbi.ui.common.JBIAdminCommands;
+import com.sun.caps.management.api.bpel.BPELManagementService;
+import com.sun.caps.management.api.bpel.BPELManagementService.BPInstanceInfo;
+import com.sun.caps.management.api.bpel.BPELManagementService.BPInstanceQueryResult;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Enumeration;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import javax.naming.InitialContext;
-import javax.sql.DataSource;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Calendar;
 
 public class Test {
 
     public static void main(String[] args) {
+        Test test = new Test();
+        test.findBPELInfo("{http://enterprise.netbeans.org/bpel/BpelModule1/bpelModule1}bpelModule1", "");
+    }
 
-//        System.out.println("DEBUG GETBPEL " + suName + " " +bpelName + " " + clusterName);
-        InputStream result = null;
+    public BPInstanceQueryResult findBPELInfo(String bpelName, String clusterName) {
+        BPInstanceQueryResult result = new BPInstanceQueryResult();
+        result.bpInstnaceList = new ArrayList<BPInstanceInfo>();
         Connection connection = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
         File file = null;
         try {
             connection = getConnection();
-            ps = connection.prepareStatement("SELECT SUZIPARCHIVE FROM SERVICEUNIT WHERE SUNAME = :1");
-            ps.setString(1, "KIOSK_CASA-KIOSK");
+            ps = connection.prepareStatement("SELECT * FROM MONITORBPELINSTANCE WHERE BPELID = ?");
+            ps.setString(1, bpelName);
             rs = ps.executeQuery();
             if (rs != null) {
                 while (rs.next()) {
-                    Blob suArchiveBlob = rs.getBlob(1);
-                    FileOutputStream fos = null;
-                    int length = 0;
-                    ZipFile zipFile = null;
-                    ZipEntry zipEntry = null;
-
-                    file = File.createTempFile("suArchive", ".zip");
-                    file.deleteOnExit();
-                    length = (int) suArchiveBlob.length();
-                    fos = new FileOutputStream(file);
-                    fos.write(suArchiveBlob.getBytes(1L, length));
-                    zipFile = new ZipFile(file);
-                    for (Enumeration<ZipEntry> e = (Enumeration<ZipEntry>) zipFile.entries(); e.hasMoreElements();) {
-                        zipEntry = e.nextElement();
-                        System.out.println(zipEntry.getName());
-                        if (zipEntry.getName().equals("/sun-bpel-engine/" + "BPEL_CL_INFO" + ".bpel")) {
-                            result = zipFile.getInputStream(zipEntry);
-                            System.out.println("result = " + result);
-                        }
-                    }
+                    BPInstanceInfo bpinfo = new BPInstanceInfo();
+                    bpinfo.id = rs.getString(2);
+                    bpinfo.bpelId = rs.getString(3);
+                    bpinfo.status = BPELManagementService.BPStatus.valueOf(rs.getString(4));
+                    bpinfo.startTime = rs.getTimestamp(5);
+                    bpinfo.endTime = rs.getTimestamp(6);
+                    bpinfo.lastUpdateTime = rs.getTimestamp(7);
+                    Timestamp lastTime = (((Timestamp) bpinfo.endTime == null) ? new Timestamp(Calendar.getInstance().getTimeInMillis()) : (Timestamp) bpinfo.endTime);
+                    bpinfo.lasted = (float) ((lastTime.getTime() - ((Timestamp) bpinfo.startTime).getTime()) / 1000.0);
+                    result.bpInstnaceList.add(bpinfo);
                 }
                 rs.close();
             }
@@ -80,20 +69,22 @@ public class Test {
                 ex.printStackTrace();
             }
         }
+        return result;
     }
 
     public static Connection getConnection() {
-        String jdbcURL = "jdbc:oracle:thin:@localhost:1521:maratdb";
+        String jdbcURL = "jdbc:derby://localhost:1527/bpelseDB";
         Connection conn = null;
         ResultSet rs = null;
-        String user = "openesb";
+        String user = "USR2";
         String passwd = "openesb";
 
         try {
-            Class.forName("oracle.jdbc.driver.OracleDriver").newInstance();
+            Class.forName("org.apache.derby.jdbc.ClientDriver").newInstance();
             conn = DriverManager.getConnection(jdbcURL, user, passwd);
 
         } catch (Exception ex) {
+            ex.printStackTrace();
         }
         return conn;
     }

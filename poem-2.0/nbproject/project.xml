@@ -11,14 +11,6 @@
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.bpelmonitor-api.jar}</file>
-                    <path-in-war>WEB-INF/lib</path-in-war>
-                </library>
-                <library>
-                    <file>${file.reference.bpelmonitor-tool.jar}</file>
-                    <path-in-war>WEB-INF/lib</path-in-war>
-                </library>
-                <library>
                     <file>${file.reference.common-util.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
@@ -74,6 +66,17 @@
                 </library>
                 <library>
                     <file>${file.reference.validation-api-1.0.0.GA.jar}</file>
+                </library>
+                <library>
+                    <file>${file.reference.bpelmonitor-api.jar}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
+                <library>
+                    <file>${file.reference.bpelmonitor-tool.jar}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
+                <library>
+                    <file>${file.reference.derbyclient.jar}</file>
                 </library>
             </web-module-libraries>
             <web-module-additional-libraries/>

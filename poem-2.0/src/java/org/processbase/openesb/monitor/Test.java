@@ -56,7 +56,7 @@ public class Test {
 
     public static void main(String[] args) throws Exception {
 //        JMXServiceURL jmxUrl = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + "esbdvl.hq.bc" + ":" + "8686" + "/jmxrmi");
-        JMXServiceURL jmxUrl = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + "localhost" + ":" + "8686" + "/jmxrmi");
+        JMXServiceURL jmxUrl = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://localhost:8686/jmxrmi");
         Map environment = new HashMap();
         environment.put(JMXConnector.CREDENTIALS, new String[]{"admin", "adminadmin"});
         JMXConnector jmxConnector = JMXConnectorFactory.connect(jmxUrl, environment);

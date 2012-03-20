@@ -20,6 +20,8 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
 import java.io.IOException;
+import org.processbase.openesb.monitor.ui.panel.BpelProcessesDBHistoryPanel;
+import org.processbase.openesb.monitor.ui.panel.BpelProcessesDBPanel;
 import org.processbase.openesb.monitor.ui.panel.BpelProcessesPanel;
 import org.processbase.openesb.monitor.ui.panel.DashboardPanel;
 import org.processbase.openesb.monitor.ui.panel.ServiceAssembliesPanel;
@@ -37,6 +39,8 @@ public class MainWindow extends Window implements SelectedTabChangeListener {
     private TopologyPanel topologyPanel;
     private ServiceAssembliesPanel serviceAssembliesPanel;
     private BpelProcessesPanel bpelPanel;
+    private BpelProcessesDBPanel bpelDbPanel;
+    private BpelProcessesDBHistoryPanel bpelDbHistoryPanel;
     private DashboardPanel dashboardPanel;
 
     public MainWindow() {
@@ -48,6 +52,9 @@ public class MainWindow extends Window implements SelectedTabChangeListener {
         topologyPanel = new TopologyPanel();
         serviceAssembliesPanel = new ServiceAssembliesPanel();
         bpelPanel = new BpelProcessesPanel();
+        bpelDbPanel = new BpelProcessesDBPanel();
+        bpelDbHistoryPanel = new BpelProcessesDBHistoryPanel();
+        bpelDbHistoryPanel.setEnabled(false);
         dashboardPanel = new DashboardPanel();
         buildMainView();
     }
@@ -68,7 +75,8 @@ public class MainWindow extends Window implements SelectedTabChangeListener {
         topologyPanel.refreshTopologyData();
         tabs.addComponent(serviceAssembliesPanel);
         tabs.addComponent(bpelPanel);
-//        tabs.addComponent(dashboardPanel);
+        tabs.addComponent(bpelDbPanel);
+        tabs.addComponent(bpelDbHistoryPanel);
         tabs.addListener((SelectedTabChangeListener) this);
         tabs.setImmediate(true);
 //        tabs.addComponent(new TabPanel("Message Queues"));
@@ -130,18 +138,14 @@ public class MainWindow extends Window implements SelectedTabChangeListener {
             help.setWidth("400px");
             help.setResizable(false);
 
-            Label helpText = new Label(
-                    "<strong>PROCESSBASE OpenESB Monitor</strong><p>POEM 2.0.1</p>",
-                    Label.CONTENT_XHTML);
-            help.addComponent(helpText);
-            helpText = new Label(
-                    "<i>1. Process Instance information export added. Use \"Export\" button on process instance window.</i>",
-                    Label.CONTENT_XHTML);
-            help.addComponent(helpText);
-            helpText = new Label(
-                    "<i>2. Fixed \"RepeatUntil\" activity monitoring.</i>",
-                    Label.CONTENT_XHTML);
-            help.addComponent(helpText);
+            help.addComponent(new Label("<strong>PROCESSBASE OpenESB Monitor</strong>", Label.CONTENT_XHTML));
+            help.addComponent(new Label("<p>POEM 2.2.0</p>", Label.CONTENT_XHTML));
+            help.addComponent(new Label("<i>1. Process search by Date range.</i>", Label.CONTENT_XHTML));
+            help.addComponent(new Label("<i>2. Analize processes from other other databases.</i>", Label.CONTENT_XHTML));
+
+            help.addComponent(new Label("<p>POEM 2.0.1</p>", Label.CONTENT_XHTML));
+            help.addComponent(new Label("<i>1. Process Instance information export added. Use \"Export\" button on process instance window.</i>", Label.CONTENT_XHTML));
+            help.addComponent(new Label("<i>2. Fixed \"RepeatUntil\" activity monitoring.</i>", Label.CONTENT_XHTML));
 
         }
         if (!getChildWindows().contains(help)) {

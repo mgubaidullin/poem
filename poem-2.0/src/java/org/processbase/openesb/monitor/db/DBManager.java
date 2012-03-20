@@ -1,5 +1,11 @@
 package org.processbase.openesb.monitor.db;
 
+import com.sun.caps.management.api.bpel.BPELManagementService;
+import com.sun.caps.management.api.bpel.BPELManagementService.BPInstanceInfo;
+import com.sun.caps.management.api.bpel.BPELManagementService.BPInstanceQueryResult;
+import com.sun.caps.management.api.bpel.BPELManagementService.BPStatus;
+import com.sun.caps.management.api.bpel.BPELManagementService.SortColumn;
+import com.sun.caps.management.api.bpel.BPELManagementService.SortOrder;
 import com.sun.jbi.ui.common.JBIAdminCommands;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -9,6 +15,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -142,6 +151,99 @@ public class DBManager {
                             break;
                         }
                     }
+                }
+                rs.close();
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            try {
+                if (ps != null) {
+                    ps.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+                if (file != null) {
+                    file.delete();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    public BPInstanceQueryResult getBPELInstances(
+            String bpelName, BPStatus bPStatus, String searchID, Integer rowCount,
+            SortColumn sortColumn, SortOrder sortOrder, String clusterName) {
+        return getBPELInstances(bpelName, bPStatus, searchID, rowCount, sortColumn, sortOrder, clusterName, null, null);
+    }
+
+    public BPInstanceQueryResult getBPELInstances(
+            String bpelName, BPStatus bPStatus, String searchID, Integer rowCount,
+            SortColumn sortColumn, SortOrder sortOrder, String clusterName, Timestamp startTime, Timestamp endTime) {
+        BPInstanceQueryResult result = new BPInstanceQueryResult();
+        result.bpInstnaceList = new ArrayList<BPInstanceInfo>();
+        Connection connection = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        File file = null;
+        try {
+            ArrayList<Object> params = new ArrayList<Object>();
+            connection = getConnection(clusterName);
+            StringBuilder select = new StringBuilder("SELECT * FROM MONITORBPELINSTANCE ");
+            if (bpelName != null || searchID != null || bPStatus != null || startTime != null || endTime != null) {
+                select.append(" WHERE ");
+            }
+            if (bpelName != null) {
+                select.append(params.size() > 0 ? " AND " : "").append("BPELID = ?");
+                params.add(bpelName);
+            }
+            if (searchID != null) {
+                select.append(params.size() > 0 ? " AND " : "").append("INSTANCEID = ?");
+                params.add(searchID);
+            }
+            if (bPStatus != null) {
+                select.append(params.size() > 0 ? " AND " : "").append("STATUS = ?");
+                params.add(bPStatus.toString());
+            }
+            if (startTime != null) {
+                select.append(params.size() > 0 ? " AND " : "").append("STARTTIME >= ?");
+                params.add(startTime);
+            }
+            if (endTime != null) {
+                select.append(params.size() > 0 ? " AND " : "").append("ENDTIME <= ?");
+                params.add(endTime);
+            }
+            select.append(" ORDER BY ").append(sortColumn.toString()).append(" ").append(sortOrder.toString());
+            System.out.println(select.toString());
+            ps = connection.prepareStatement(select.toString());
+            for (int x = 1; x < params.size() + 1; x++) {
+                Object value = params.get(x - 1);
+                System.out.println(value);
+                if (value instanceof String){
+                    ps.setString(x, (String) params.get(x - 1));
+                } else if (value instanceof Timestamp){
+                    ps.setTimestamp(x, (Timestamp) params.get(x - 1));
+                }
+            }
+            rs = ps.executeQuery();
+            if (rs != null) {
+                int i = 0;
+                while (i < rowCount && rs.next()) {
+                    BPInstanceInfo bpinfo = new BPInstanceInfo();
+                    bpinfo.id = rs.getString(2);
+                    bpinfo.bpelId = rs.getString(3);
+                    bpinfo.status = BPELManagementService.BPStatus.valueOf(rs.getString(4));
+                    bpinfo.startTime = rs.getTimestamp(5);
+                    bpinfo.endTime = rs.getTimestamp(6);
+                    bpinfo.lastUpdateTime = rs.getTimestamp(7);
+                    Timestamp lastTime = (((Timestamp) bpinfo.endTime == null) ? new Timestamp(Calendar.getInstance().getTimeInMillis()) : (Timestamp) bpinfo.endTime);
+                    bpinfo.lasted = (float) ((lastTime.getTime() - ((Timestamp) bpinfo.startTime).getTime()) / 1000.0);
+                    result.bpInstnaceList.add(bpinfo);
+                    i++;
                 }
                 rs.close();
             }

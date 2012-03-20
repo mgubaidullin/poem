@@ -21,13 +21,17 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.DateField;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.NativeSelect;
+import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.Reindeer;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import org.processbase.openesb.monitor.POEM;
 import org.processbase.openesb.monitor.POEMConstants;
@@ -41,29 +45,31 @@ import org.processbase.openesb.monitor.ui.template.TablePanel;
  *
  * @author mgubaidullin
  */
-public class BpelProcessesPanel extends TablePanel implements Property.ValueChangeListener {
+public class BpelProcessesDBPanel extends TablePanel implements Property.ValueChangeListener {
 
     private NativeSelect statusSelect = new NativeSelect("Status");
     private TextField searchID = new TextField("Search ID");
-    private TextField searchString = new TextField("Search String");
+//    private TextField searchString = new TextField("Search String");
     private TextField rowCount = new TextField("Row count", "10");
     private NativeSelect suSelect = new NativeSelect("Service Unit");
     private NativeSelect piSelect = new NativeSelect("BPEL ID");
     private CheckBox isPersistenceEnabled = new CheckBox("Persistence");
     private CheckBox isMonitoringEnabled = new CheckBox("Monitoring");
     private CheckBox isMonitoringVariableEnabled = new CheckBox("Variables");
-    private GridLayout infoPanel = new GridLayout(8, 4);
+    private GridLayout infoPanel = new GridLayout(9, 4);
     private NativeSelect clusterSelect = new NativeSelect("Cluster");
     private NativeSelect saSelect = new NativeSelect("Service Assembly");
     private NativeSelect sortColumnSelect = new NativeSelect("Sort Column");
     private NativeSelect sortOrderSelect = new NativeSelect("Sort Order");
+    private PopupDateField startTime = new PopupDateField("Start time");
+    private PopupDateField endTime = new PopupDateField("End time");
     private Button refreshClustersBtn = new Button();
     private Button refreshAssembliesBtn = new Button();
     private List<ServiceAssemblyInfo> serveceAssembliesInfoList;
     public IndexedContainer biContainer = new IndexedContainer();
 
-    public BpelProcessesPanel() {
-        super("BPEL Service Engine");
+    public BpelProcessesDBPanel() {
+        super("BPEL Service Engine (BETA)");
         buttonBar.setHeight("100px");
 
         if (POEM.getCurrent().isClusterSupported) {
@@ -79,7 +85,7 @@ public class BpelProcessesPanel extends TablePanel implements Property.ValueChan
             });
 
             infoPanel.addComponent(clusterSelect, 0, 0);
-            refreshClustersBtn.setStyleName(Button.STYLE_LINK);
+            refreshClustersBtn.setStyleName(Reindeer.BUTTON_LINK);
             refreshClustersBtn.setDescription("Refresh clusters");
             refreshClustersBtn.setIcon(new ThemeResource("icons/reload.png"));
             refreshClustersBtn.addListener((Button.ClickListener) this);
@@ -169,8 +175,15 @@ public class BpelProcessesPanel extends TablePanel implements Property.ValueChan
         searchID.setWidth("200px");
         infoPanel.addComponent(searchID, 7, 0, 7, 0);
 
-        searchString.setWidth("200px");
-        infoPanel.addComponent(searchString, 7, 1, 7, 1);
+        Calendar date = Calendar.getInstance();
+        startTime.setResolution(DateField.RESOLUTION_MIN);
+        startTime.setValue(date.getTime());
+        infoPanel.addComponent(startTime, 7, 1, 7, 1);
+
+        endTime.setResolution(DateField.RESOLUTION_MIN);
+        date.add(Calendar.HOUR, -1);
+        endTime.setValue(date.getTime());
+        infoPanel.addComponent(endTime, 8, 1, 8, 1);
 
         infoPanel.setMargin(false);
         infoPanel.setSpacing(true);
@@ -299,37 +312,33 @@ public class BpelProcessesPanel extends TablePanel implements Property.ValueChan
         biContainer.removeAllItems();
         try {
             BPInstanceQueryResult instances = null;
+            
             if (searchID.getValue() != null && !searchID.getValue().toString().isEmpty()) {
                 instances =
-                        POEM.getCurrent().bpelManagementService.getBPELInstances(
+                        POEM.getCurrent().dbManager.getBPELInstances(
                         piSelect.getValue() != null ? piSelect.getValue().toString() : null,
                         (BPStatus) statusSelect.getValue(),
                         (String) searchID.getValue(),
                         new Integer(rowCount.getValue().toString()),
                         (SortColumn) sortColumnSelect.getValue(),
                         (SortOrder) sortOrderSelect.getValue(),
-                        POEM.getCurrent().isClusterSupported ? clusterSelect.getValue().toString() : null);
-
-            } else if (searchString.getValue() != null && !searchString.getValue().toString().isEmpty()) {
-                instances =
-                        POEM.getCurrent().bpelManagementService.searchBPELInstances(
-                        piSelect.getValue() != null ? piSelect.getValue().toString() : null,
-                        (BPStatus) statusSelect.getValue(),
-                        (String) searchString.getValue(),
-                        new Integer(rowCount.getValue().toString()),
-                        (SortColumn) sortColumnSelect.getValue(),
-                        (SortOrder) sortOrderSelect.getValue(),
-                        POEM.getCurrent().isClusterSupported ? clusterSelect.getValue().toString() : null);
+                        POEM.getCurrent().isClusterSupported ? clusterSelect.getValue().toString() : null,
+                        new Timestamp(((Date)startTime.getValue()).getTime()),
+                        new Timestamp(((Date)endTime.getValue()).getTime())
+                        );
             } else {
                 instances =
-                        POEM.getCurrent().bpelManagementService.getBPELInstances(
+                        POEM.getCurrent().dbManager.getBPELInstances(
                         piSelect.getValue() != null ? piSelect.getValue().toString() : null,
                         (BPStatus) statusSelect.getValue(),
                         null,
                         new Integer(rowCount.getValue().toString()),
                         (SortColumn) sortColumnSelect.getValue(),
                         (SortOrder) sortOrderSelect.getValue(),
-                        POEM.getCurrent().isClusterSupported ? clusterSelect.getValue().toString() : null);
+                        POEM.getCurrent().isClusterSupported ? clusterSelect.getValue().toString() : null,
+                        new Timestamp(((Date)startTime.getValue()).getTime()),
+                        new Timestamp(((Date)endTime.getValue()).getTime())
+                        );
             }
             for (BPInstanceInfo info : instances.bpInstnaceList) {
                 Item woItem = biContainer.addItem(info);

@@ -16,7 +16,7 @@
         </init-param>
         <init-param>
             <param-name>widgetset</param-name>
-            <param-value>org.processbase.vaadin.widgetset.DefaultWidgetSet</param-value>
+            <param-value>org.processbase.openesb.poem.widgetset.DefaultWidgetSet</param-value>
         </init-param>
     </servlet>
     <servlet-mapping>
