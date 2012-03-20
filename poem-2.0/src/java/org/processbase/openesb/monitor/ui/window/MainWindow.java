@@ -139,7 +139,7 @@ public class MainWindow extends Window implements SelectedTabChangeListener {
             help.setResizable(false);
 
             help.addComponent(new Label("<strong>PROCESSBASE OpenESB Monitor</strong>", Label.CONTENT_XHTML));
-            help.addComponent(new Label("<p>POEM 2.2.0</p>", Label.CONTENT_XHTML));
+            help.addComponent(new Label("<p>POEM 2.1.0</p>", Label.CONTENT_XHTML));
             help.addComponent(new Label("<i>1. Process search by Date range.</i>", Label.CONTENT_XHTML));
             help.addComponent(new Label("<i>2. Analize processes from other other databases.</i>", Label.CONTENT_XHTML));
 
