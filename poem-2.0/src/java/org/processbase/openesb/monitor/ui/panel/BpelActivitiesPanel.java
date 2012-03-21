@@ -24,6 +24,7 @@ import org.processbase.openesb.monitor.POEM;
 
 
 import org.processbase.openesb.monitor.POEMConstants;
+import org.processbase.openesb.monitor.db.DBManager;
 import org.processbase.openesb.monitor.ui.template.TableExecButton;
 import org.processbase.openesb.monitor.ui.template.TreeTablePanel;
 import org.processbase.openesb.monitor.ui.window.BpelInstanceWindow;
@@ -137,11 +138,14 @@ public class BpelActivitiesPanel extends TreeTablePanel implements Property.Valu
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 //            factory.setNamespaceAware(true); 
             DocumentBuilder builder = factory.newDocumentBuilder();
-            InputStream is = POEM.getCurrent().dbManager.getBPEL(suName, bpelName.split("}")[1], target);
+            InputStream is = POEM.getCurrent().dbManager.getBPEL(suName, bpelName.split("}")[1], target, DBManager.ConnectionSource.CLUSTER);
             if (is == null) {
-                is = POEM.getCurrent().dbManager.findBPEL(bpelName.split("}")[1], target);
+                is = POEM.getCurrent().dbManager.findBPEL(bpelName.split("}")[1], target, DBManager.ConnectionSource.CLUSTER);
             }
             bpelDocument = builder.parse(is);
+
+            System.out.println(bpelDocument.toString());
+
         } catch (Exception ex) {
             ex.printStackTrace();
             getWindow().showNotification("Error prepareBPEL", ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);

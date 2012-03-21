@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.List;
 import org.processbase.openesb.monitor.POEM;
 import org.processbase.openesb.monitor.POEMConstants;
+import org.processbase.openesb.monitor.db.DBManager;
 import org.processbase.openesb.monitor.ui.template.TableExecButton;
 import org.processbase.openesb.monitor.ui.template.TableExecButtonBar;
 
@@ -324,7 +325,7 @@ public class BpelProcessesDBPanel extends TablePanel implements Property.ValueCh
                         (SortOrder) sortOrderSelect.getValue(),
                         POEM.getCurrent().isClusterSupported ? clusterSelect.getValue().toString() : null,
                         new Timestamp(((Date)startTime.getValue()).getTime()),
-                        new Timestamp(((Date)endTime.getValue()).getTime())
+                        new Timestamp(((Date)endTime.getValue()).getTime()), DBManager.ConnectionSource.CLUSTER
                         );
             } else {
                 instances =
@@ -337,7 +338,7 @@ public class BpelProcessesDBPanel extends TablePanel implements Property.ValueCh
                         (SortOrder) sortOrderSelect.getValue(),
                         POEM.getCurrent().isClusterSupported ? clusterSelect.getValue().toString() : null,
                         new Timestamp(((Date)startTime.getValue()).getTime()),
-                        new Timestamp(((Date)endTime.getValue()).getTime())
+                        new Timestamp(((Date)endTime.getValue()).getTime()), DBManager.ConnectionSource.CLUSTER
                         );
             }
             for (BPInstanceInfo info : instances.bpInstnaceList) {

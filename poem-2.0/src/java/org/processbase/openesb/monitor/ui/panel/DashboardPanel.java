@@ -73,7 +73,7 @@ public class DashboardPanel extends TabPanel implements Property.ValueChangeList
 
 
     private void getProcessesByStatus() {
-        connection = POEM.getCurrent().dbManager.getConnection(null);
+        connection = POEM.getCurrent().dbManager.getConnection(null, DBManager.ConnectionSource.CLUSTER);
         PreparedStatement pstmt = null;
         try {
             pstmt = connection.prepareStatement(DBManager.SQL_COUNT_BY_STATUS);

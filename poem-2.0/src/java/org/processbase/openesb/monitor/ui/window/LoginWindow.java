@@ -16,7 +16,6 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import java.util.Locale;
 
 /**
  *
@@ -36,7 +35,6 @@ public class LoginWindow extends Window implements Handler {
     private TextField password = new TextField("Password", "");
     private Label labelLeft = new Label("");
     private Label labelRight = new Label("");
-    private Locale locale = null;
     private Embedded logo = null;
 
     public LoginWindow() {

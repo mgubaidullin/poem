@@ -13,6 +13,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.processbase.openesb.monitor.POEM;
 
 
+import org.processbase.openesb.monitor.db.DBManager;
 import org.processbase.openesb.monitor.ui.template.TreeTablePanel;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -155,9 +156,9 @@ public class BpelModelPanel extends TreeTablePanel implements Property.ValueChan
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 //            factory.setNamespaceAware(true); // never forget this!
             DocumentBuilder builder = factory.newDocumentBuilder();
-            InputStream is = POEM.getCurrent().dbManager.getBPEL(suName, bpelName.split("}")[1], target);
+            InputStream is = POEM.getCurrent().dbManager.getBPEL(suName, bpelName.split("}")[1], target, DBManager.ConnectionSource.CLUSTER);
             if (is == null) {
-                is = POEM.getCurrent().dbManager.findBPEL(bpelName.split("}")[1], target);
+                is = POEM.getCurrent().dbManager.findBPEL(bpelName.split("}")[1], target, DBManager.ConnectionSource.CLUSTER);
             }
             bpelDocument = builder.parse(is);
         } catch (Exception ex) {

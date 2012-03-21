@@ -54,7 +54,6 @@ public class MainWindow extends Window implements SelectedTabChangeListener {
         bpelPanel = new BpelProcessesPanel();
         bpelDbPanel = new BpelProcessesDBPanel();
         bpelDbHistoryPanel = new BpelProcessesDBHistoryPanel();
-        bpelDbHistoryPanel.setEnabled(false);
         dashboardPanel = new DashboardPanel();
         buildMainView();
     }

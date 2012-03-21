@@ -61,12 +61,19 @@ public class Test {
         environment.put(JMXConnector.CREDENTIALS, new String[]{"admin", "adminadmin"});
         JMXConnector jmxConnector = JMXConnectorFactory.connect(jmxUrl, environment);
         MBeanServerConnection jmxMBeanServerCon = jmxConnector.getMBeanServerConnection();
+        
+
+        for (String domain : jmxMBeanServerCon.getDomains()){
+        System.out.println(domain);
+        }
+
+
         JBIAdminCommands jbiAdminCommands = JBIAdminCommandsClientFactory.getInstance(jmxMBeanServerCon);
 //        System.out.println(jbiAdminCommands.getComponentConfiguration("sun-bpel-engine", "esb-clt4").getProperty("DatabaseNonXAJNDIName"));
 
-        Test test = new Test();
+//        Test test = new Test();
 //        test.parce();
-        test.hierarchy();
+//        test.hierarchy();
 
 //        test.getBPEL("AutoPayPaymentComposite-AutoPayPaymentBPEL", "autopayPaymentKCELL");
 

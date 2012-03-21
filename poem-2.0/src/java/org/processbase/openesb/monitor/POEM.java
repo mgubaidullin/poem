@@ -83,6 +83,14 @@ public class POEM extends Application implements TransactionListener {
 
         POEM.getCurrent().isClusterSupported = AMXUtil.supportCluster();
 
+        
+        System.out.println("--------------------");
+        for (String jdbc : AMXUtil.getDomainConfig().getJDBCResourceConfigMap().keySet()){
+            System.out.println(jdbc);
+        }
+
+//        System.out.println(AMXUtil.getDomainConfig().getJDBCConnectionPoolConfigMap());
+
         prepareSharedUI();
 
         mainWindow = new MainWindow();

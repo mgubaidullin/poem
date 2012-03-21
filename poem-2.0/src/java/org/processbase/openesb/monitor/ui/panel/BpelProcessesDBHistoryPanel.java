@@ -28,15 +28,18 @@ import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.Reindeer;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import org.processbase.openesb.monitor.POEM;
 import org.processbase.openesb.monitor.POEMConstants;
 import org.processbase.openesb.monitor.ui.template.TableExecButton;
 import org.processbase.openesb.monitor.ui.template.TableExecButtonBar;
+import org.processbase.openesb.monitor.db.DBManager;
 
 
 import org.processbase.openesb.monitor.ui.template.TablePanel;
@@ -49,22 +52,16 @@ public class BpelProcessesDBHistoryPanel extends TablePanel implements Property.
 
     private NativeSelect statusSelect = new NativeSelect("Status");
     private TextField searchID = new TextField("Search ID");
-//    private TextField searchString = new TextField("Search String");
     private TextField rowCount = new TextField("Row count", "10");
     private NativeSelect suSelect = new NativeSelect("Service Unit");
     private NativeSelect piSelect = new NativeSelect("BPEL ID");
-    private CheckBox isPersistenceEnabled = new CheckBox("Persistence");
-    private CheckBox isMonitoringEnabled = new CheckBox("Monitoring");
-    private CheckBox isMonitoringVariableEnabled = new CheckBox("Variables");
     private GridLayout infoPanel = new GridLayout(9, 4);
-    private NativeSelect clusterSelect = new NativeSelect("Cluster");
-    private NativeSelect saSelect = new NativeSelect("Service Assembly");
+    private NativeSelect jdbcSelect = new NativeSelect("JDBC Pool Resource");
     private NativeSelect sortColumnSelect = new NativeSelect("Sort Column");
     private NativeSelect sortOrderSelect = new NativeSelect("Sort Order");
     private PopupDateField startTime = new PopupDateField("Start time");
     private PopupDateField endTime = new PopupDateField("End time");
-    private Button refreshClustersBtn = new Button();
-    private Button refreshAssembliesBtn = new Button();
+    private Button refreshJdbcBtn = new Button();
     private List<ServiceAssemblyInfo> serveceAssembliesInfoList;
     public IndexedContainer biContainer = new IndexedContainer();
 
@@ -72,51 +69,23 @@ public class BpelProcessesDBHistoryPanel extends TablePanel implements Property.
         super("BPEL History (BETA)");
         buttonBar.setHeight("100px");
 
-        if (POEM.getCurrent().isClusterSupported) {
-            clusterSelect.setWidth("100px");
-            clusterSelect.setNullSelectionAllowed(false);
-            clusterSelect.setImmediate(true);
-            clusterSelect.addListener(new Property.ValueChangeListener() {
-
-                public void valueChange(ValueChangeEvent event) {
-//                    checkBPELSEState();
-                    refreshServiceAssembliesData();
-                }
-            });
-
-            infoPanel.addComponent(clusterSelect, 0, 0);
-            refreshClustersBtn.setStyleName(Reindeer.BUTTON_LINK);
-            refreshClustersBtn.setDescription("Refresh clusters");
-            refreshClustersBtn.setIcon(new ThemeResource("icons/reload.png"));
-            refreshClustersBtn.addListener((Button.ClickListener) this);
-            infoPanel.addComponent(refreshClustersBtn, 1, 0);
-            infoPanel.setComponentAlignment(refreshClustersBtn, Alignment.MIDDLE_LEFT);
-        }
-
-//        infoPanel.addComponent(isPersistenceEnabled, 0, 1);
-//        infoPanel.setComponentAlignment(isPersistenceEnabled, Alignment.MIDDLE_LEFT);
-//        infoPanel.addComponent(isMonitoringEnabled, 0, 2);
-//        infoPanel.setComponentAlignment(isMonitoringEnabled, Alignment.MIDDLE_LEFT);
-//        infoPanel.addComponent(isMonitoringVariableEnabled, 0, 3);
-//        infoPanel.setComponentAlignment(isMonitoringVariableEnabled, Alignment.MIDDLE_LEFT);
-
-        saSelect.setWidth("150px");
-        saSelect.setNullSelectionAllowed(false);
-        saSelect.setImmediate(true);
-        saSelect.addListener(new Property.ValueChangeListener() {
+        jdbcSelect.setWidth("150px");
+        jdbcSelect.setNullSelectionAllowed(false);
+        jdbcSelect.setImmediate(true);
+        jdbcSelect.addListener(new Property.ValueChangeListener() {
 
             public void valueChange(ValueChangeEvent event) {
                 refreshBpelServiceUnits();
                 refreshBtn.setStyleName(Reindeer.BUTTON_DEFAULT);
             }
         });
-        infoPanel.addComponent(saSelect, 2, 0);
-        refreshAssembliesBtn.setStyleName(Button.STYLE_LINK);
-        refreshAssembliesBtn.setDescription("Refresh service assemblies");
-        refreshAssembliesBtn.setIcon(new ThemeResource("icons/reload.png"));
-        refreshAssembliesBtn.addListener((Button.ClickListener) this);
-        infoPanel.addComponent(refreshAssembliesBtn, 3, 0);
-        infoPanel.setComponentAlignment(refreshAssembliesBtn, Alignment.MIDDLE_LEFT);
+        infoPanel.addComponent(jdbcSelect, 2, 0);
+        refreshJdbcBtn.setStyleName(Button.STYLE_LINK);
+        refreshJdbcBtn.setDescription("Refresh jdbc list");
+        refreshJdbcBtn.setIcon(new ThemeResource("icons/reload.png"));
+        refreshJdbcBtn.addListener((Button.ClickListener) this);
+        infoPanel.addComponent(refreshJdbcBtn, 3, 0);
+        infoPanel.setComponentAlignment(refreshJdbcBtn, Alignment.MIDDLE_LEFT);
 
         suSelect.setWidth("250px");
         suSelect.setNullSelectionAllowed(false);
@@ -190,11 +159,7 @@ public class BpelProcessesDBHistoryPanel extends TablePanel implements Property.
         buttonBar.addComponent(infoPanel, 0);
 
         // should be after UI definition
-        if (POEM.getCurrent().isClusterSupported) {
-            refreshClusters();
-        } else {
-            refreshServiceAssembliesData();
-        }
+        refreshJDBCPoolResourceList();
 
         initContainer();
         initTableUI();
@@ -210,92 +175,51 @@ public class BpelProcessesDBHistoryPanel extends TablePanel implements Property.
         biContainer.addContainerProperty("actions", TableExecButtonBar.class, null);
     }
 
-    private void refreshClusters() {
-        IndexedContainer clustersContainer = new IndexedContainer();
-        for (String cluster : AMXUtil.getDomainConfig().getClusterConfigMap().keySet()) {
-            clustersContainer.addItem(cluster);
-        }
-        clusterSelect.setContainerDataSource(clustersContainer);
-        clusterSelect.setValue(clusterSelect.getItemIds().toArray()[0]);
-    }
-
-    private void refreshServiceAssembliesData() {
-        IndexedContainer serveceAssembliesContainer = new IndexedContainer();
+    private void refreshJDBCPoolResourceList() {
+        IndexedContainer jdbcContainer = new IndexedContainer();
         try {
-            if (POEM.getCurrent().isClusterSupported && clusterSelect.getValue() != null) {
-                String xmlQueryResults = POEM.getCurrent().jbiAdminCommands.listServiceAssemblies(clusterSelect.getValue().toString());
-                serveceAssembliesInfoList = ServiceAssemblyInfo.readFromXmlTextWithProlog(xmlQueryResults);
-            } else if (!POEM.getCurrent().isClusterSupported) {
-                String xmlQueryResults = POEM.getCurrent().jbiAdminCommands.listServiceAssemblies(JBIAdminCommands.DOMAIN_TARGET_KEY);
-                serveceAssembliesInfoList = ServiceAssemblyInfo.readFromXmlTextWithProlog(xmlQueryResults);
+            for (String jdbc : AMXUtil.getDomainConfig().getJDBCResourceConfigMap().keySet()) {
+                jdbcContainer.addItem(jdbc);
             }
-            for (ServiceAssemblyInfo saInfo : serveceAssembliesInfoList) {
-                serveceAssembliesContainer.addItem(saInfo.getName());
-            }
-            saSelect.setContainerDataSource(serveceAssembliesContainer);
-            saSelect.setValue(serveceAssembliesContainer.getIdByIndex(0));
+            jdbcSelect.setContainerDataSource(jdbcContainer);
+            jdbcSelect.setValue(jdbcContainer.getIdByIndex(0));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
     private void refreshBpelServiceUnits() {
-        IndexedContainer serveceUnitsContainer = new IndexedContainer();
-        if (saSelect.getValue() != null) {
-            for (ServiceAssemblyInfo saInfo : serveceAssembliesInfoList) {
-                if (saInfo.getName().equals(saSelect.getValue().toString())) {
-                    List<ServiceUnitInfo> suInfoList = saInfo.getServiceUnitInfoList();
-                    for (ServiceUnitInfo suInfo : suInfoList) {
-                        if (suInfo.getDeployedOn().equalsIgnoreCase("sun-bpel-engine")) {
-                            serveceUnitsContainer.addItem(suInfo.getName());
-                        }
-                    }
+        try {
+            suSelect.removeAllItems();
+            IndexedContainer serveceUnitsContainer = new IndexedContainer();
+            if (jdbcSelect.getValue() != null) {
+                for (String suname : POEM.getCurrent().dbManager.getSUList(jdbcSelect.getValue().toString(), DBManager.ConnectionSource.JDBC)) {
+                    serveceUnitsContainer.addItem(suname);
                 }
+                suSelect.setContainerDataSource(serveceUnitsContainer);
+                suSelect.setValue(suSelect.getItemIds().size() > 0 ? suSelect.getItemIds().toArray()[0] : null);
             }
-            suSelect.setContainerDataSource(serveceUnitsContainer);
-            suSelect.setValue(suSelect.getItemIds().size() > 0 ? suSelect.getItemIds().toArray()[0] : null);
+        } catch (SQLException sqlEx) {
+            POEM.getCurrent().getMainWindow().showNotification("ERROR", sqlEx.getMessage(), Notification.TYPE_ERROR_MESSAGE);
         }
     }
 
     private void refreshBpelProcessIds() {
         piSelect.removeAllItems();
         try {
-            List<String> bpelProcessIds = new ArrayList<String>();
-            if (POEM.getCurrent().isClusterSupported && clusterSelect.getValue() != null && suSelect.getValue() != null) {
-                bpelProcessIds.addAll(POEM.getCurrent().bpelManagementService.getBPELProcessIds(
-                        suSelect.getValue().toString(), clusterSelect.getValue().toString()));
-            } else if (!POEM.getCurrent().isClusterSupported && suSelect.getValue() != null) {
-                bpelProcessIds.addAll(POEM.getCurrent().bpelManagementService.getBPELProcessIds(
-                        suSelect.getValue().toString(), null));
+            if (suSelect.getValue() != null && jdbcSelect.getValue() != null) {
+                HashMap<String, String> bpelList = POEM.getCurrent().dbManager.getBPELList(suSelect.getValue().toString(), jdbcSelect.getValue().toString(), DBManager.ConnectionSource.JDBC);
+                for (String processId : bpelList.keySet()) {
+                    Item item = piSelect.addItem(processId);
+                    piSelect.setItemCaption(processId, bpelList.get(processId));
+                }
+                piSelect.setValue(piSelect.getItemIds().size() > 0 ? piSelect.getItemIds().toArray()[0] : null);
             }
-
-            for (String processId : bpelProcessIds) {
-                Item item = piSelect.addItem(processId);
-                piSelect.setItemCaption(processId, processId.split("}")[1]);
-            }
-            piSelect.setValue(piSelect.getItemIds().size() > 0 ? piSelect.getItemIds().toArray()[0] : null);
-        } catch (ManagementRemoteException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
             getWindow().showNotification("Error", ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
         }
 
-    }
-
-    private void checkBPELSEState() {
-        try {
-            isPersistenceEnabled.setReadOnly(false);
-            isMonitoringEnabled.setReadOnly(false);
-            isMonitoringVariableEnabled.setReadOnly(false);
-            isPersistenceEnabled.setValue(POEM.getCurrent().bpelManagementService.isPersistenceEnabled(POEM.getCurrent().isClusterSupported ? (String) clusterSelect.getValue() : null));
-            isMonitoringEnabled.setValue(POEM.getCurrent().bpelManagementService.isMonitoringEnabled(POEM.getCurrent().isClusterSupported ? (String) clusterSelect.getValue() : null));
-            isMonitoringVariableEnabled.setValue(POEM.getCurrent().bpelManagementService.isMonitoringVariableEnabled(POEM.getCurrent().isClusterSupported ? (String) clusterSelect.getValue() : null));
-            isPersistenceEnabled.setReadOnly(true);
-            isMonitoringEnabled.setReadOnly(true);
-            isMonitoringVariableEnabled.setReadOnly(true);
-        } catch (ManagementRemoteException ex) {
-            ex.printStackTrace();
-            getWindow().showNotification("Error", ex.getMessage(), Notification.TYPE_ERROR_MESSAGE);
-        }
     }
 
     @Override
@@ -312,7 +236,7 @@ public class BpelProcessesDBHistoryPanel extends TablePanel implements Property.
         biContainer.removeAllItems();
         try {
             BPInstanceQueryResult instances = null;
-            
+
             if (searchID.getValue() != null && !searchID.getValue().toString().isEmpty()) {
                 instances =
                         POEM.getCurrent().dbManager.getBPELInstances(
@@ -322,10 +246,9 @@ public class BpelProcessesDBHistoryPanel extends TablePanel implements Property.
                         new Integer(rowCount.getValue().toString()),
                         (SortColumn) sortColumnSelect.getValue(),
                         (SortOrder) sortOrderSelect.getValue(),
-                        POEM.getCurrent().isClusterSupported ? clusterSelect.getValue().toString() : null,
-                        new Timestamp(((Date)startTime.getValue()).getTime()),
-                        new Timestamp(((Date)endTime.getValue()).getTime())
-                        );
+                        jdbcSelect.getValue().toString(),
+                        new Timestamp(((Date) startTime.getValue()).getTime()),
+                        new Timestamp(((Date) endTime.getValue()).getTime()), DBManager.ConnectionSource.JDBC);
             } else {
                 instances =
                         POEM.getCurrent().dbManager.getBPELInstances(
@@ -335,10 +258,9 @@ public class BpelProcessesDBHistoryPanel extends TablePanel implements Property.
                         new Integer(rowCount.getValue().toString()),
                         (SortColumn) sortColumnSelect.getValue(),
                         (SortOrder) sortOrderSelect.getValue(),
-                        POEM.getCurrent().isClusterSupported ? clusterSelect.getValue().toString() : null,
-                        new Timestamp(((Date)startTime.getValue()).getTime()),
-                        new Timestamp(((Date)endTime.getValue()).getTime())
-                        );
+                        jdbcSelect.getValue().toString(),
+                        new Timestamp(((Date) startTime.getValue()).getTime()),
+                        new Timestamp(((Date) endTime.getValue()).getTime()), DBManager.ConnectionSource.JDBC);
             }
             for (BPInstanceInfo info : instances.bpInstnaceList) {
                 Item woItem = biContainer.addItem(info);
@@ -384,57 +306,9 @@ public class BpelProcessesDBHistoryPanel extends TablePanel implements Property.
 
             if (event.getButton().equals(refreshBtn)) {
                 refreshProcessesData();
-            } else if (event.getButton().equals(refreshClustersBtn)) {
-                refreshClusters();
+            } else if (event.getButton().equals(refreshJdbcBtn)) {
+                refreshJDBCPoolResourceList();
                 refreshBtn.setStyleName(Reindeer.BUTTON_DEFAULT);
-            } else if (event.getButton().equals(refreshAssembliesBtn)) {
-                refreshServiceAssembliesData();
-                refreshBtn.setStyleName(Reindeer.BUTTON_DEFAULT);
-            } else if (event.getButton() instanceof TableExecButton) {
-                TableExecButton teb = (TableExecButton) event.getButton();
-                if (POEM.getCurrent().isClusterSupported && clusterSelect.getValue() != null) {
-                    switch (teb.getAction()) {
-                        case POEMConstants.ACTION_INFO:
-                            addBpelInstanceWindow((BPInstanceInfo) teb.getTableValue(), clusterSelect.getValue().toString());
-                            break;
-                        case POEMConstants.ACTION_TERMINATE:
-                            if (POEM.getCurrent().bpelManagementService.terminateInstance(((BPInstanceInfo) teb.getTableValue()).id, clusterSelect.getValue().toString())) {
-                                refreshInstance((BPInstanceInfo) teb.getTableValue(), BPStatus.TERMINATED);
-                            }
-                            break;
-                        case POEMConstants.ACTION_RESUME:
-                            if (POEM.getCurrent().bpelManagementService.resumeInstance(((BPInstanceInfo) teb.getTableValue()).id, clusterSelect.getValue().toString())) {
-                                refreshInstance((BPInstanceInfo) teb.getTableValue(), BPStatus.RUNNING);
-                            }
-                            break;
-                        case POEMConstants.ACTION_SUSPEND:
-                            if (POEM.getCurrent().bpelManagementService.suspendInstance(((BPInstanceInfo) teb.getTableValue()).id, clusterSelect.getValue().toString())) {
-                                refreshInstance((BPInstanceInfo) teb.getTableValue(), BPStatus.SUSPENDED);
-                            }
-                            break;
-                    }
-                } else if (!POEM.getCurrent().isClusterSupported) {
-                    switch (teb.getAction()) {
-                        case POEMConstants.ACTION_INFO:
-                            addBpelInstanceWindow((BPInstanceInfo) teb.getTableValue(), null);
-                            break;
-                        case POEMConstants.ACTION_TERMINATE:
-                            if (POEM.getCurrent().bpelManagementService.terminateInstance(((BPInstanceInfo) teb.getTableValue()).id, null)) {
-                                refreshInstance((BPInstanceInfo) teb.getTableValue(), BPStatus.TERMINATED);
-                            }
-                            break;
-                        case POEMConstants.ACTION_RESUME:
-                            if (POEM.getCurrent().bpelManagementService.resumeInstance(((BPInstanceInfo) teb.getTableValue()).id, null)) {
-                                refreshInstance((BPInstanceInfo) teb.getTableValue(), BPStatus.RUNNING);
-                            }
-                            break;
-                        case POEMConstants.ACTION_SUSPEND:
-                            if (POEM.getCurrent().bpelManagementService.suspendInstance(((BPInstanceInfo) teb.getTableValue()).id, null)) {
-                                refreshInstance((BPInstanceInfo) teb.getTableValue(), BPStatus.SUSPENDED);
-                            }
-                            break;
-                    }
-                }
             }
         } catch (Exception ex) {
             ex.printStackTrace();
