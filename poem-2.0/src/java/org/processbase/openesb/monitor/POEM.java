@@ -4,6 +4,7 @@ package org.processbase.openesb.monitor;
  *
  * @author mgubaidullin
  */
+import javax.jms.Queue;
 import org.processbase.openesb.monitor.ui.window.LoginWindow;
 import org.processbase.openesb.monitor.ui.window.MainWindow;
 import com.sun.caps.management.api.bpel.BPELManagementService;
@@ -21,10 +22,16 @@ import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import java.util.HashMap;
 import java.util.Map;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
+import javax.jms.QueueBrowser;
+import javax.jms.Session;
 import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
+import javax.naming.InitialContext;
 import org.processbase.openesb.monitor.db.DBManager;
 
 public class POEM extends Application implements TransactionListener {
@@ -84,10 +91,23 @@ public class POEM extends Application implements TransactionListener {
         POEM.getCurrent().isClusterSupported = AMXUtil.supportCluster();
 
         
-        System.out.println("--------------------");
-        for (String jdbc : AMXUtil.getDomainConfig().getJDBCResourceConfigMap().keySet()){
-            System.out.println(jdbc);
-        }
+//        System.out.println("--------------------");
+//        for (String jms : AMXUtil.getDomainConfig().getConnectorResourceConfigMap().keySet()){
+//            InitialContext context = new InitialContext();
+//            ConnectionFactory connectionFactory = (ConnectionFactory) context.lookup(jms);
+//            Destination destination = (Destination) context.lookup("jms/processbaseEventDR");
+//
+//            Connection conn = connectionFactory.createConnection();
+//            Session session = conn.createSession(true, Session.SESSION_TRANSACTED);
+//
+//            QueueBrowser myBrowser = session.createBrowser((Queue) destination);
+//            System.out.println(jms + " - " + connectionFactory.getClass().getCanonicalName());
+//        }
+//
+//        for (String jms : AMXUtil.getDomainConfig().getAdminObjectResourceConfigMap().keySet()){
+//            System.out.println(jms);
+//
+//        }
 
 //        System.out.println(AMXUtil.getDomainConfig().getJDBCConnectionPoolConfigMap());
 

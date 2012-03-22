@@ -6,11 +6,8 @@ import com.sun.caps.management.api.bpel.BPELManagementService.BPInstanceQueryRes
 import com.sun.caps.management.api.bpel.BPELManagementService.BPStatus;
 import com.sun.caps.management.api.bpel.BPELManagementService.SortColumn;
 import com.sun.caps.management.api.bpel.BPELManagementService.SortOrder;
-import com.sun.caps.management.common.ManagementRemoteException;
 import com.sun.enterprise.tools.admingui.util.AMXUtil;
-import com.sun.jbi.ui.common.JBIAdminCommands;
 import com.sun.jbi.ui.common.ServiceAssemblyInfo;
-import com.sun.jbi.ui.common.ServiceUnitInfo;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -20,7 +17,6 @@ import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.NativeSelect;
@@ -30,7 +26,6 @@ import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.themes.Reindeer;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -38,7 +33,6 @@ import java.util.List;
 import org.processbase.openesb.monitor.POEM;
 import org.processbase.openesb.monitor.POEMConstants;
 import org.processbase.openesb.monitor.ui.template.TableExecButton;
-import org.processbase.openesb.monitor.ui.template.TableExecButtonBar;
 import org.processbase.openesb.monitor.db.DBManager;
 
 
@@ -172,7 +166,6 @@ public class BpelProcessesDBHistoryPanel extends TablePanel implements Property.
         biContainer.addContainerProperty("endTime", String.class, null);
         biContainer.addContainerProperty("lasted", String.class, null);
         biContainer.addContainerProperty("status", String.class, null);
-        biContainer.addContainerProperty("actions", TableExecButtonBar.class, null);
     }
 
     private void refreshJDBCPoolResourceList() {
@@ -270,12 +263,6 @@ public class BpelProcessesDBHistoryPanel extends TablePanel implements Property.
                 woItem.getItemProperty("endTime").setValue(info.endTime);
                 woItem.getItemProperty("lasted").setValue(info.lasted);
                 woItem.getItemProperty("status").setValue(info.status);
-
-                TableExecButtonBar tebb = new TableExecButtonBar();
-                tebb.addButton(getExecBtn("Resume", "icons/start.png", info, POEMConstants.ACTION_RESUME));
-                tebb.addButton(getExecBtn("Suspend", "icons/pause.png", info, POEMConstants.ACTION_SUSPEND));
-                tebb.addButton(getExecBtn("Terminate", "icons/cancel.png", info, POEMConstants.ACTION_TERMINATE));
-                woItem.getItemProperty("actions").setValue(tebb);
             }
             table.setColumnFooter("bpelId", "processes count = " + table.size());
         } catch (Exception ex) {
@@ -309,6 +296,9 @@ public class BpelProcessesDBHistoryPanel extends TablePanel implements Property.
             } else if (event.getButton().equals(refreshJdbcBtn)) {
                 refreshJDBCPoolResourceList();
                 refreshBtn.setStyleName(Reindeer.BUTTON_DEFAULT);
+            } else if (event.getButton() instanceof TableExecButton) {
+                TableExecButton teb = (TableExecButton) event.getButton();
+                addBpelInstanceWindow((BPInstanceInfo) teb.getTableValue(), null);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
