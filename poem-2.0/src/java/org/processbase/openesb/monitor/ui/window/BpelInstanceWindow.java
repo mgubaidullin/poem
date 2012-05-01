@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import org.processbase.openesb.monitor.POEM;
+import org.processbase.openesb.monitor.db.DBManager.ConnectionSource;
 import org.processbase.openesb.monitor.ui.panel.BpelActivitiesPanel;
 import org.processbase.openesb.monitor.ui.panel.BpelModelPanel;
 import org.processbase.openesb.monitor.ui.panel.BpelVariablesPanel;
@@ -31,8 +32,9 @@ public class BpelInstanceWindow extends Window {
     private BpelVariablesPanel bpelVariablesPanel = null;
     private BPInstanceInfo instanceInfo = null;
 
-    public BpelInstanceWindow(BPInstanceInfo instanceInfo, String suName, String target) {
+    public BpelInstanceWindow(BPInstanceInfo instanceInfo, String suName, String target, ConnectionSource connectionSource) {
         super("Process name" + instanceInfo.bpelId + ", id = " + instanceInfo.id);
+        System.out.println("Process name" + instanceInfo.bpelId + ", id = " + instanceInfo.id + ", target ="+ target);
         this.instanceInfo = instanceInfo;
         mainLayout = (VerticalLayout) getContent();
         mainLayout.setMargin(true);
@@ -45,13 +47,13 @@ public class BpelInstanceWindow extends Window {
         mainLayout.addComponent(tabs);
         mainLayout.setExpandRatio(tabs, 1);
 
-        bpelActivitiesPanel = new BpelActivitiesPanel(instanceInfo.id, suName, instanceInfo.bpelId, target);
+        bpelActivitiesPanel = new BpelActivitiesPanel(instanceInfo.id, suName, instanceInfo.bpelId, target, connectionSource);
         tabs.addComponent(bpelActivitiesPanel);
 
         bpelModelPanel = new BpelModelPanel(instanceInfo.id, suName, instanceInfo.bpelId, target);
         tabs.addComponent(bpelModelPanel);
 
-        bpelVariablesPanel = new BpelVariablesPanel(instanceInfo.id, null, target);
+        bpelVariablesPanel = new BpelVariablesPanel(instanceInfo.id, null, target, connectionSource);
         tabs.addComponent(bpelVariablesPanel);
     }
 

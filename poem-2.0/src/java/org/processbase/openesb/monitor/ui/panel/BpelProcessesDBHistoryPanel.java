@@ -298,7 +298,7 @@ public class BpelProcessesDBHistoryPanel extends TablePanel implements Property.
                 refreshBtn.setStyleName(Reindeer.BUTTON_DEFAULT);
             } else if (event.getButton() instanceof TableExecButton) {
                 TableExecButton teb = (TableExecButton) event.getButton();
-                addBpelInstanceWindow((BPInstanceInfo) teb.getTableValue(), null);
+                addBpelInstanceWindow((BPInstanceInfo) teb.getTableValue(), jdbcSelect.getValue().toString());
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -313,7 +313,7 @@ public class BpelProcessesDBHistoryPanel extends TablePanel implements Property.
 
     private void addBpelInstanceWindow(BPInstanceInfo info, String target) {
         BpelInstanceWindow bpelInstanceWindow = null;
-        bpelInstanceWindow = new BpelInstanceWindow(info, suSelect.getValue().toString(), target);
+        bpelInstanceWindow = new BpelInstanceWindow(info, suSelect.getValue().toString(), target, DBManager.ConnectionSource.JDBC);
         bpelInstanceWindow.setWidth("90%");
         bpelInstanceWindow.setHeight("90%");
         bpelInstanceWindow.setResizable(false);

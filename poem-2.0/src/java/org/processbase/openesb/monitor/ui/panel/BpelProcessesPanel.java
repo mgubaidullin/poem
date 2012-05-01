@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.processbase.openesb.monitor.POEM;
 import org.processbase.openesb.monitor.POEMConstants;
+import org.processbase.openesb.monitor.db.DBManager.ConnectionSource;
 import org.processbase.openesb.monitor.ui.template.TableExecButton;
 import org.processbase.openesb.monitor.ui.template.TableExecButtonBar;
 
@@ -440,7 +441,7 @@ public class BpelProcessesPanel extends TablePanel implements Property.ValueChan
 
     private void addBpelInstanceWindow(BPInstanceInfo info, String target) {
         BpelInstanceWindow bpelInstanceWindow = null;
-        bpelInstanceWindow = new BpelInstanceWindow(info, suSelect.getValue().toString(), target);
+        bpelInstanceWindow = new BpelInstanceWindow(info, suSelect.getValue().toString(), target, ConnectionSource.CLUSTER);
         bpelInstanceWindow.setWidth("90%");
         bpelInstanceWindow.setHeight("90%");
         bpelInstanceWindow.setResizable(false);

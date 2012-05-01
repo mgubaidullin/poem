@@ -450,7 +450,7 @@ public class BpelProcessesDBPanel extends TablePanel implements Property.ValueCh
 
     private void addBpelInstanceWindow(BPInstanceInfo info, String target) {
         BpelInstanceWindow bpelInstanceWindow = null;
-        bpelInstanceWindow = new BpelInstanceWindow(info, suSelect.getValue().toString(), target);
+        bpelInstanceWindow = new BpelInstanceWindow(info, suSelect.getValue().toString(), target, DBManager.ConnectionSource.CLUSTER);
         bpelInstanceWindow.setWidth("90%");
         bpelInstanceWindow.setHeight("90%");
         bpelInstanceWindow.setResizable(false);

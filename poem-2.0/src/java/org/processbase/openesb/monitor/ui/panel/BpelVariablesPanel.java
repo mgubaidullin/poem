@@ -50,9 +50,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.sax.SAXTransformerFactory;
+import org.processbase.openesb.monitor.db.DBManager.ConnectionSource;
 
 /**
  *
@@ -62,6 +64,7 @@ public class BpelVariablesPanel extends TablePanel implements Property.ValueChan
 
     private String instanceId;
     private String target;
+    private ConnectionSource connectionSource;
     private String varName;
     private IndexedContainer variablesContainer = new IndexedContainer();
     private String variableBody = null;
@@ -72,9 +75,10 @@ public class BpelVariablesPanel extends TablePanel implements Property.ValueChan
     private Accordion variableValues = new Accordion();
     private HashMap<BPELManagementService.VarInfo, String> variables = new HashMap<BPELManagementService.VarInfo, String>();
 
-    public BpelVariablesPanel(String instanceId, String varName, String target) {
+    public BpelVariablesPanel(String instanceId, String varName, String target, ConnectionSource connectionSource) {
         super("Variables");
         this.target = target;
+        this.connectionSource = connectionSource;
         this.instanceId = instanceId;
         this.varName = varName;
         try {
@@ -120,7 +124,11 @@ public class BpelVariablesPanel extends TablePanel implements Property.ValueChan
             public void valueChange(ValueChangeEvent event) {
                 VarInfo var = (VarInfo) event.getProperty().getValue();
                 try {
-                    variableBody = POEM.getCurrent().bpelManagementService.getVariableValue(instanceId, var.varId, target);
+                    if (connectionSource.equals(ConnectionSource.CLUSTER)) {
+                        variableBody = POEM.getCurrent().bpelManagementService.getVariableValue(instanceId, var.varId, target);
+                    } else {
+                        variableBody = POEM.getCurrent().dbManager.getVariableValue(instanceId, var.varId, target, connectionSource);
+                    }
 //                    System.out.println("variableBody = " + variableBody.getClass().getCanonicalName());
                     setVariableFields();
                 } catch (Exception ex) {
@@ -152,16 +160,24 @@ public class BpelVariablesPanel extends TablePanel implements Property.ValueChan
     public void refreshInstanceData() {
         variablesContainer.removeAllItems();
         try {
-            List<BPELManagementService.VarInfo> vars =
-                    POEM.getCurrent().bpelManagementService.listBPELVaraibles(instanceId, varName, target);
+            List<BPELManagementService.VarInfo> vars = new ArrayList<BPELManagementService.VarInfo>();
+            if (connectionSource.equals(ConnectionSource.CLUSTER)) {
+                vars = POEM.getCurrent().bpelManagementService.listBPELVaraibles(instanceId, varName, target);
+            } else {
+                vars = POEM.getCurrent().dbManager.listBPELVaraibles(instanceId, varName, target, connectionSource);
+            }
+            System.out.println("vars = " + vars.size());
             for (VarInfo var : vars) {
+                System.out.println(var.toString());
                 Item woItem = variablesContainer.addItem(var);
                 woItem.getItemProperty("varId").setValue(var.varId);
                 woItem.getItemProperty("varName").setValue(var.varName);
                 woItem.getItemProperty("xpath").setValue(var.xpath);
                 woItem.getItemProperty("notes").setValue(var.notes);
             }
-            table.select(variablesContainer.getIdByIndex(0));
+            if (variablesContainer.size() > 0) {
+                table.select(variablesContainer.getIdByIndex(0));
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }

@@ -25,6 +25,7 @@ import org.processbase.openesb.monitor.POEM;
 
 import org.processbase.openesb.monitor.POEMConstants;
 import org.processbase.openesb.monitor.db.DBManager;
+import org.processbase.openesb.monitor.db.DBManager.ConnectionSource;
 import org.processbase.openesb.monitor.ui.template.TableExecButton;
 import org.processbase.openesb.monitor.ui.template.TreeTablePanel;
 import org.processbase.openesb.monitor.ui.window.BpelInstanceWindow;
@@ -42,15 +43,17 @@ public class BpelActivitiesPanel extends TreeTablePanel implements Property.Valu
     private String suName = null;
     private String bpelName = null;
     private String target;
+    private ConnectionSource connectionSource;
     public HierarchicalContainer activitiesContainer = new HierarchicalContainer();
     private Document bpelDocument = null;
     private List<BPELManagementService.ActivityStatus> activities = null;
     private HashMap<BPELManagementService.ActivityStatus, String> actNames = new HashMap<BPELManagementService.ActivityStatus, String>();
     private Button btnExport = null;
 
-    public BpelActivitiesPanel(String instanceId, String suName, String bpelName, String target) {
+    public BpelActivitiesPanel(String instanceId, String suName, String bpelName, String target, ConnectionSource connectionSource) {
         super("Activities");
         this.target = target;
+        this.connectionSource = connectionSource;
         this.instanceId = instanceId;
         this.suName = suName;
         this.bpelName = bpelName;
@@ -93,7 +96,12 @@ public class BpelActivitiesPanel extends TreeTablePanel implements Property.Valu
     public void refreshInstanceData() {
         activitiesContainer.removeAllItems();
         try {
+            if (connectionSource.equals(ConnectionSource.CLUSTER)){
             activities = POEM.getCurrent().bpelManagementService.getBPELInstanceActivityStatus(instanceId, target);
+            } else {
+                activities = POEM.getCurrent().dbManager.getBPELInstanceActivityStatus(instanceId, target, connectionSource);
+            }
+
             for (ActivityStatus activity : activities) {
                 // prepare xpath
                 XPathFactory xFactory = XPathFactory.newInstance();
@@ -140,7 +148,7 @@ public class BpelActivitiesPanel extends TreeTablePanel implements Property.Valu
             DocumentBuilder builder = factory.newDocumentBuilder();
             InputStream is = POEM.getCurrent().dbManager.getBPEL(suName, bpelName.split("}")[1], target, DBManager.ConnectionSource.CLUSTER);
             if (is == null) {
-                is = POEM.getCurrent().dbManager.findBPEL(bpelName.split("}")[1], target, DBManager.ConnectionSource.CLUSTER);
+                is = POEM.getCurrent().dbManager.findBPEL(bpelName.split("}")[1], target, DBManager.ConnectionSource.JDBC);
             }
             bpelDocument = builder.parse(is);
 

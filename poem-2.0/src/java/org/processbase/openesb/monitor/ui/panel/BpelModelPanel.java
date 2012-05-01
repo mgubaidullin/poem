@@ -158,7 +158,7 @@ public class BpelModelPanel extends TreeTablePanel implements Property.ValueChan
             DocumentBuilder builder = factory.newDocumentBuilder();
             InputStream is = POEM.getCurrent().dbManager.getBPEL(suName, bpelName.split("}")[1], target, DBManager.ConnectionSource.CLUSTER);
             if (is == null) {
-                is = POEM.getCurrent().dbManager.findBPEL(bpelName.split("}")[1], target, DBManager.ConnectionSource.CLUSTER);
+                is = POEM.getCurrent().dbManager.findBPEL(bpelName.split("}")[1], target, DBManager.ConnectionSource.JDBC);
             }
             bpelDocument = builder.parse(is);
         } catch (Exception ex) {
