@@ -12,7 +12,7 @@ DatabaseType=DERBY
 AlertTableName=EVENTMANAGEMENT
 DBJndiName=jdbc/AlertPersistenceDB
 }}}
-  # For Databases Other Than Derby create table
+  # Create table
     * Open the jbi_rt.jar file in the GlassfishESB-install-dir/glassfish/jbi/lib directory
     * Extract the SQL scripts (create_event_store_user.sql) for your database type from /com/sun/esb/eventmanagement/impl/scripts/
 {{{
