@@ -8,8 +8,8 @@ PersistencePolicyExecEnabled=false
 PersistenceAlertAge=-1
 PersistenceEnabled=true
 PersistenceAlertLevel=NONE
-DatabaseType=DERBY
-AlertTableName=EVENTMANAGEMENT
+AlertTableName=NOTIFICATION_EVENT
+DatabaseType=ORACLE
 DBJndiName=jdbc/AlertPersistenceDB
 }}}
   # Create table
