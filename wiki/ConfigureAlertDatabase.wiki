@@ -19,24 +19,25 @@ DBJndiName=jdbc/AlertPersistenceDB
 create table NOTIFICATION_EVENT (
   id NUMBER CONSTRAINT ID_PK PRIMARY KEY, 
 	event_timeStamp TIMESTAMP,
-  physicalHostName varchar(256), 
-	environmentName varchar(256), 
-	logicalHostName varchar(256), 
-	serverType varchar(256), 
-	serverName varchar(256), 
-	componentType varchar(256), 
-	componentProjectPathName varchar(1024), 
-	componentName varchar(256), 
-	eventType varchar(256), 
+  physicalHostName varchar2(256), 
+	environmentName varchar2(256), 
+	logicalHostName varchar2(256), 
+	serverType varchar2(256), 
+	serverName varchar2(256), 
+	componentType varchar2(256), 
+	componentProjectPathName varchar2(1024), 
+	componentName varchar2(256), 
+	eventType varchar2(256), 
 	severity integer, 
 	operationalState int, 
-	messageCode varchar(256), 
-	messageDetail varchar(4096), 
+	messageCode varchar2(256), 
+	messageDetail varchar2(4000), 
 	observationalState int, 
-	deploymentName varchar(256)
+	deploymentName varchar2(256)
 );
 -- INSERT statement need to use it to insure autoincrement functionality
 CREATE SEQUENCE autoincrement_id; 
-create index  eventTime NOTIFICATION_EVENT(event_timeStamp);
+CREATE INDEX NOTIFICATION_EVENT_IDX ON NOTIFICATION_EVENT (EVENT_TIMESTAMP);
+
 }}}
   # Create jdbc pool and resource jdbc/AlertPersistenceDB 
