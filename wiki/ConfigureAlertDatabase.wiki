@@ -13,8 +13,6 @@ DatabaseType=ORACLE
 DBJndiName=jdbc/AlertPersistenceDB
 }}}
   # Create table
-    * Open the jbi_rt.jar file in the GlassfishESB-install-dir/glassfish/jbi/lib directory
-    * SQL script for Oracle
 {{{
 create table NOTIFICATION_EVENT(
 id NUMBER CONSTRAINT ID_PK PRIMARY KEY,
