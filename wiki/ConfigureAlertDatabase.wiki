@@ -1,0 +1,18 @@
+  # Open the eventmanagement.properties file in the GlassfishESB-install-dir/glassfish/domains/domain-name/jbi/config directory.
+  # If necessary, change the default value of the AlertTableName property and save the file.
+{{{
+PersistencePolicyExecInterval=600000
+journalEnabled=true
+PersistenceAlertCount=-1
+PersistencePolicyExecEnabled=false
+PersistenceAlertAge=-1
+PersistenceEnabled=true
+PersistenceAlertLevel=NONE
+DatabaseType=DERBY
+AlertTableName=EVENTMANAGEMENT
+DBJndiName=jdbc/AlertPersistenceDB
+}}}
+  # For Databases Other Than Derby create table
+    * Open the jbi_rt.jar file in the GlassfishESB-install-dir/glassfish/jbi/lib directory
+    * Extract the SQL scripts (create_event_store_user.sql) for your database type from /com/sun/esb/eventmanagement/impl/scripts/
+  # Create jdbc pool and resource jdbc/AlertPersistenceDB 
