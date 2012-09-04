@@ -1,5 +1,5 @@
   # Open the eventmanagement.properties file in the GlassfishESB-install-dir/glassfish/domains/domain-name/jbi/config directory.
-  # If necessary, change the default value of the AlertTableName property and save the file.
+  # Change the default values and save the file.
 {{{
 PersistencePolicyExecInterval=600000
 journalEnabled=true
