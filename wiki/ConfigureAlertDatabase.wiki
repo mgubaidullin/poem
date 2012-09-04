@@ -15,4 +15,28 @@ DBJndiName=jdbc/AlertPersistenceDB
   # For Databases Other Than Derby create table
     * Open the jbi_rt.jar file in the GlassfishESB-install-dir/glassfish/jbi/lib directory
     * Extract the SQL scripts (create_event_store_user.sql) for your database type from /com/sun/esb/eventmanagement/impl/scripts/
+{{{
+create table NOTIFICATION_EVENT (
+  id NUMBER CONSTRAINT ID_PK PRIMARY KEY, 
+	event_timeStamp TIMESTAMP,
+  physicalHostName varchar(256), 
+	environmentName varchar(256), 
+	logicalHostName varchar(256), 
+	serverType varchar(256), 
+	serverName varchar(256), 
+	componentType varchar(256), 
+	componentProjectPathName varchar(1024), 
+	componentName varchar(256), 
+	eventType varchar(256), 
+	severity integer, 
+	operationalState int, 
+	messageCode varchar(256), 
+	messageDetail varchar(4096), 
+	observationalState int, 
+	deploymentName varchar(256)
+);
+-- INSERT statement need to use it to insure autoincrement functionality
+CREATE SEQUENCE autoincrement_id; 
+create index  eventTime NOTIFICATION_EVENT(event_timeStamp);
+}}}
   # Create jdbc pool and resource jdbc/AlertPersistenceDB 
