@@ -14,30 +14,30 @@ DBJndiName=jdbc/AlertPersistenceDB
 }}}
   # Create table
     * Open the jbi_rt.jar file in the GlassfishESB-install-dir/glassfish/jbi/lib directory
-    * Extract the SQL scripts (create_event_store_user.sql) for your database type from /com/sun/esb/eventmanagement/impl/scripts/
+    * SQL script for Oracle
 {{{
-create table NOTIFICATION_EVENT (
-  id NUMBER CONSTRAINT ID_PK PRIMARY KEY, 
-	event_timeStamp TIMESTAMP,
-  physicalHostName varchar2(256), 
-	environmentName varchar2(256), 
-	logicalHostName varchar2(256), 
-	serverType varchar2(256), 
-	serverName varchar2(256), 
-	componentType varchar2(256), 
-	componentProjectPathName varchar2(1024), 
-	componentName varchar2(256), 
-	eventType varchar2(256), 
-	severity integer, 
-	operationalState int, 
-	messageCode varchar2(256), 
-	messageDetail varchar2(4000), 
-	observationalState int, 
-	deploymentName varchar2(256)
+create table NOTIFICATION_EVENT(
+id NUMBER CONSTRAINT ID_PK PRIMARY KEY,
+timeStamp decimal,
+physicalHostName varchar(256),
+environmentName varchar(256),
+logicalHostName varchar(256),
+serverType varchar(256),
+serverName varchar(256),
+componentType varchar(256),
+componentProjectPathName varchar(1024),
+componentName varchar(256),
+eventType varchar(256),
+severity integer,
+operationalState int,
+messageCode varchar(256),
+messageDetail varchar(4000),
+observationalState int,
+deploymentName varchar(256));
 );
 -- INSERT statement need to use it to insure autoincrement functionality
 CREATE SEQUENCE autoincrement_id; 
-CREATE INDEX NOTIFICATION_EVENT_IDX ON NOTIFICATION_EVENT (EVENT_TIMESTAMP);
+CREATE INDEX NOTIFICATION_EVENT_IDX ON NOTIFICATION_EVENT (TIMESTAMP);
 
 }}}
   # Create jdbc pool and resource jdbc/AlertPersistenceDB 
