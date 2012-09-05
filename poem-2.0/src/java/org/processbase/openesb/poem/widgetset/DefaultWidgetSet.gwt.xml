@@ -17,7 +17,7 @@
     <!-- <set-property name="user.agent" value="gecko1_8"/> -->
 
 
-    <inherits name="org.processbase.vaadin.widgetset.DefaultWidgetSet" />
+    
 
     <inherits name="com.vaadin.terminal.gwt.DefaultWidgetSet" />
 

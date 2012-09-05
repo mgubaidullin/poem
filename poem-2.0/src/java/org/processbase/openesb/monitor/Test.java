@@ -4,36 +4,32 @@
  */
 package org.processbase.openesb.monitor;
 
-import com.sun.caps.management.api.bpel.BPELManagementService;
-import com.sun.caps.management.api.bpel.BPELManagementServiceFactory;
+import com.sun.enterprise.tools.admingui.util.AMXUtil;
 import com.sun.jbi.ui.client.JBIAdminCommandsClientFactory;
 import com.sun.jbi.ui.common.JBIAdminCommands;
-import com.sun.jbi.ui.common.ServiceAssemblyInfo;
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanServerConnection;
+import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
@@ -61,14 +57,19 @@ public class Test {
         environment.put(JMXConnector.CREDENTIALS, new String[]{"admin", "adminadmin"});
         JMXConnector jmxConnector = JMXConnectorFactory.connect(jmxUrl, environment);
         MBeanServerConnection jmxMBeanServerCon = jmxConnector.getMBeanServerConnection();
-        
 
-        for (String domain : jmxMBeanServerCon.getDomains()){
-        System.out.println(domain);
+        System.out.println(new Date(1346790916431L));
+
+
+        for (ObjectName objectName : jmxMBeanServerCon.queryNames(null, null)) {
+            if (objectName.getCanonicalName().equals("EventManagement:name=EventManagementControllerMBean")) {
+                System.out.println(jmxMBeanServerCon.getAttribute(objectName, "DBJndiName"));
+                System.out.println(jmxMBeanServerCon.getAttribute(objectName, "EMuniqueTableName"));
+            }
         }
 
 
-        JBIAdminCommands jbiAdminCommands = JBIAdminCommandsClientFactory.getInstance(jmxMBeanServerCon);
+//        JBIAdminCommands jbiAdminCommands = JBIAdminCommandsClientFactory.getInstance(jmxMBeanServerCon);
 //        System.out.println(jbiAdminCommands.getComponentConfiguration("sun-bpel-engine", "esb-clt4").getProperty("DatabaseNonXAJNDIName"));
 
 //        Test test = new Test();

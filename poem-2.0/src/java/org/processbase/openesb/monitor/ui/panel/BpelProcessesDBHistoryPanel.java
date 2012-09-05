@@ -60,7 +60,7 @@ public class BpelProcessesDBHistoryPanel extends TablePanel implements Property.
     public IndexedContainer biContainer = new IndexedContainer();
 
     public BpelProcessesDBHistoryPanel() {
-        super("BPEL History (BETA)");
+        super("BPEL History");
         buttonBar.setHeight("100px");
 
         jdbcSelect.setWidth("150px");

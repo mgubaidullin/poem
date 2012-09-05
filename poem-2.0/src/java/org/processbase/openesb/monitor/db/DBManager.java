@@ -28,6 +28,10 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import javax.naming.InitialContext;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
 import javax.sql.DataSource;
 import javax.sql.rowset.serial.SerialClob;
 import javax.xml.parsers.DocumentBuilder;
@@ -792,5 +796,40 @@ public class DBManager {
         public String getCode() {
             return mCode;
         }
+    }
+
+    public List<NotificationEvent> getNotificationEvents(Integer severity, String jdbcResourceName, int maxResult) {
+        List<NotificationEvent> result = new ArrayList<NotificationEvent>();
+        Map properties = new HashMap();
+        properties.put("javax.persistence.jtaDataSource", jdbcResourceName);
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("poemPU", properties);
+        EntityManager em = entityManagerFactory.createEntityManager();
+
+
+        Query query = em.createQuery("SELECT n FROM NotificationEvent n WHERE n.severity = :severity ORDER BY n.id");
+        query.setMaxResults(maxResult);
+        query.setParameter("severity", severity);
+        for (NotificationEvent ne : (List<NotificationEvent>) query.getResultList()) {
+            result.add(ne);
+        }
+        em.close();
+        entityManagerFactory.close();
+        return result;
+    }
+
+    public List<String> getComponentTypes(String jdbcResourceName) {
+        List<String> result = new ArrayList<String>();
+        Map properties = new HashMap();
+        properties.put("javax.persistence.jtaDataSource", jdbcResourceName);
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("poemPU", properties);
+        EntityManager em = entityManagerFactory.createEntityManager();
+
+        Query query = em.createNamedQuery("NotificationEvent.findListOfComponenttype");
+        for (String ne : (List<String>) query.getResultList()) {
+            result.add(ne);
+        }
+        em.close();
+        entityManagerFactory.close();
+        return result;
     }
 }

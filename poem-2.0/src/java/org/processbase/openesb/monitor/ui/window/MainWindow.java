@@ -20,6 +20,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
 import java.io.IOException;
+import org.processbase.openesb.monitor.ui.panel.AlertDBPanel;
 import org.processbase.openesb.monitor.ui.panel.BpelProcessesDBHistoryPanel;
 import org.processbase.openesb.monitor.ui.panel.BpelProcessesDBPanel;
 import org.processbase.openesb.monitor.ui.panel.BpelProcessesPanel;
@@ -42,6 +43,7 @@ public class MainWindow extends Window implements SelectedTabChangeListener {
     private BpelProcessesDBPanel bpelDbPanel;
     private BpelProcessesDBHistoryPanel bpelDbHistoryPanel;
     private DashboardPanel dashboardPanel;
+    private AlertDBPanel alertDBPanel;
 
     public MainWindow() {
         super("POEM");
@@ -55,6 +57,7 @@ public class MainWindow extends Window implements SelectedTabChangeListener {
         bpelDbPanel = new BpelProcessesDBPanel();
         bpelDbHistoryPanel = new BpelProcessesDBHistoryPanel();
         dashboardPanel = new DashboardPanel();
+        alertDBPanel = new AlertDBPanel();
         buildMainView();
     }
 
@@ -76,6 +79,7 @@ public class MainWindow extends Window implements SelectedTabChangeListener {
         tabs.addComponent(bpelPanel);
         tabs.addComponent(bpelDbPanel);
         tabs.addComponent(bpelDbHistoryPanel);
+        tabs.addComponent(alertDBPanel);
         tabs.addListener((SelectedTabChangeListener) this);
         tabs.setImmediate(true);
 //        tabs.addComponent(new TabPanel("Message Queues"));

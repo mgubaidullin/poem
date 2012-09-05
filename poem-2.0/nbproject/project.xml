@@ -48,10 +48,6 @@
                     <file>${file.reference.ojdbc6_11.2.0.2.jar}</file>
                 </library>
                 <library>
-                    <file>${file.reference.vaadin-6.7.1.jar}</file>
-                    <path-in-war>WEB-INF/lib</path-in-war>
-                </library>
-                <library>
                     <file>${file.reference.codemirror-0.9.3.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
@@ -77,6 +73,10 @@
                 </library>
                 <library>
                     <file>${file.reference.derbyclient.jar}</file>
+                </library>
+                <library>
+                    <file>${file.reference.vaadin-6.8.2.jar}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
             </web-module-libraries>
             <web-module-additional-libraries/>

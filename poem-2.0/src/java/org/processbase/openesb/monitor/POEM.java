@@ -39,6 +39,7 @@ public class POEM extends Application implements TransactionListener {
     private static ThreadLocal<POEM> currentApplication = new ThreadLocal<POEM>();
     private MainWindow mainWindow;
     public JMXConnector jmxConnector;
+    public MBeanServerConnection jmxMBeanServerConnection;
     public JBIAdminCommands jbiAdminCommands;
     public BPELManagementService bpelManagementService;
     public IndexedContainer targets = new IndexedContainer();
@@ -82,11 +83,11 @@ public class POEM extends Application implements TransactionListener {
         Map environment = new HashMap();
         environment.put(JMXConnector.CREDENTIALS, new String[]{login, password});
         jmxConnector = JMXConnectorFactory.connect(jmxUrl, environment);
-        MBeanServerConnection jmxMBeanServerCon = jmxConnector.getMBeanServerConnection();
+        jmxMBeanServerConnection = jmxConnector.getMBeanServerConnection();
 
-        POEM.getCurrent().jbiAdminCommands = JBIAdminCommandsClientFactory.getInstance(jmxMBeanServerCon);
+        POEM.getCurrent().jbiAdminCommands = JBIAdminCommandsClientFactory.getInstance(jmxMBeanServerConnection);
 
-        POEM.getCurrent().bpelManagementService = BPELManagementServiceFactory.getBPELManagementServiceLocal(jmxMBeanServerCon);
+        POEM.getCurrent().bpelManagementService = BPELManagementServiceFactory.getBPELManagementServiceLocal(jmxMBeanServerConnection);
 
         POEM.getCurrent().isClusterSupported = AMXUtil.supportCluster();
 

@@ -70,7 +70,7 @@ public class BpelProcessesDBPanel extends TablePanel implements Property.ValueCh
     public IndexedContainer biContainer = new IndexedContainer();
 
     public BpelProcessesDBPanel() {
-        super("BPEL Service Engine (BETA)");
+        super("BPEL Service Engine");
         buttonBar.setHeight("100px");
 
         if (POEM.getCurrent().isClusterSupported) {

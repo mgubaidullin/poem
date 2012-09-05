@@ -514,13 +514,13 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${file.reference.jbi-admin-common.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.jbi-admin-common.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.jcommon-1.0.16.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.jcommon-1.0.16.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.appserv-se.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.appserv-se.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.vaadin-6.7.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.vaadin-6.7.1.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.codemirror-0.9.3.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.codemirror-0.9.3.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.bpelmonitor-api.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.bpelmonitor-api.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.bpelmonitor-tool.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.bpelmonitor-tool.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.vaadin-6.8.2.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.vaadin-6.8.2.jar" todir="${dist.ear.dir}"/>
         <mkdir dir="${build.web.dir}/META-INF"/>
         <manifest file="${build.web.dir}/META-INF/MANIFEST.MF" mode="update">
-            <attribute name="Class-Path" value="${manifest.file.reference.admin.jar} ${manifest.file.reference.common-util.jar} ${manifest.file.reference.jbi-admin-common.jar} ${manifest.file.reference.jcommon-1.0.16.jar} ${manifest.file.reference.appserv-se.jar} ${manifest.file.reference.vaadin-6.7.1.jar} ${manifest.file.reference.codemirror-0.9.3.jar} ${manifest.file.reference.bpelmonitor-api.jar} ${manifest.file.reference.bpelmonitor-tool.jar} "/>
+            <attribute name="Class-Path" value="${manifest.file.reference.admin.jar} ${manifest.file.reference.common-util.jar} ${manifest.file.reference.jbi-admin-common.jar} ${manifest.file.reference.jcommon-1.0.16.jar} ${manifest.file.reference.appserv-se.jar} ${manifest.file.reference.codemirror-0.9.3.jar} ${manifest.file.reference.bpelmonitor-api.jar} ${manifest.file.reference.bpelmonitor-tool.jar} ${manifest.file.reference.vaadin-6.8.2.jar} "/>
         </manifest>
     </target>
     <target depends="init" name="library-inclusion-in-archive" unless="dist.ear.dir">
@@ -529,10 +529,10 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${file.reference.jbi-admin-common.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.jcommon-1.0.16.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.appserv-se.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.vaadin-6.7.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.codemirror-0.9.3.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.bpelmonitor-api.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.bpelmonitor-tool.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.vaadin-6.8.2.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
     </target>
     <target depends="init,compile,compile-jsps,-pre-dist,library-inclusion-in-manifest" if="do.tmp.war.package" name="do-ear-dist">
         <dirname file="${dist.ear.war}" property="dist.jar.dir"/>
